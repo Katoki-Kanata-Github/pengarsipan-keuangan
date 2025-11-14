@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\ArchiveFileController;
+use App\Http\Controllers\Admin\DocumentFolderController;
+use App\Http\Controllers\Admin\DocumentRackController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -35,3 +38,16 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+
+// ============================================================== route tampilan admin
+Route::get('/rak', [AdminController::class, 'input_archive'])->name('admin.rack.archive');
+Route::get('/rak/create', [AdminController::class, 'form_rack'])->name('admin.create.rack.archive');
+Route::get('/folder/create/{id}', [DocumentFolderController::class, 'create_wit_rack'])->name('folder.create_with_rack');
+Route::get('/file/create/{id}', [ArchiveFileController::class, 'create_with_folder'])->name('file.create_with_folder');
+Route::get('/file/download/{id}', [ArchiveFileController::class, 'download_file'])->name('archive.download');
+Route::post('/file/upload/{id}', [ArchiveFileController::class, 'update_new_file'])->name('archive.upload.store');
+
+
+Route::resource('/document/rak', DocumentRackController::class);
+Route::resource('/document/folder', DocumentFolderController::class);
+Route::resource('/document/file', ArchiveFileController::class);
