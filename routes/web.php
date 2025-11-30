@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AccountManageController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ArchiveFileController;
 use App\Http\Controllers\Admin\CabinetController;
@@ -57,6 +58,8 @@ Route::get('/file/create/{id}', [ArchiveFileController::class, 'create_with_fold
 Route::get('/file/download/{id}', [ArchiveFileController::class, 'download_file'])->name('archive.download');
 Route::post('/file/upload/{id}', [ArchiveFileController::class, 'update_new_file'])->name('archive.upload.store');
 
+Route::get('/kelola/user', [AdminController::class, 'kelola_user'])->name('admin.kelola');
+
 Route::resource('/cabinet', CabinetController::class);
 Route::resource('/category', CategoryController::class);
 Route::resource('/subcategory', SubCategoryController::class);
@@ -65,3 +68,5 @@ Route::resource('/document/rak', DocumentRackController::class);
 Route::resource('/document/folder', DocumentFolderController::class);
 Route::resource('/document/file', ArchiveFileController::class);
 Route::resource('/document/search', SearchController::class);
+
+Route::resource('/account', AccountManageController::class);

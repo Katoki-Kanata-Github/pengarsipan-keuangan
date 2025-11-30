@@ -19,7 +19,13 @@
 
                     $roleInputArsip = match (Auth::user()->role) {
                         'admin' => route('admin.archive'),
-                        'user' => abort(403),
+                        'user' => '#',
+                        default => '#',
+                    };
+
+                    $roleKelolaUser = match (Auth::user()->role) {
+                        'admin' => route('account.index'),
+                        'user' => '#',
                         default => '#',
                     };
                 @endphp
@@ -30,15 +36,26 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
-
                 @if (Auth::user()->role == 'admin')
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link href="{{ $roleInputArsip }}" :active="request()->routeIs('dashboard')">
                             {{ __('Input Arsip') }}
                         </x-nav-link>
                     </div>
-                @else
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link href="{{ $roleKelolaUser }}" :active="request()->routeIs('dashboard')">
+                            {{ __('kelola user') }}
+                        </x-nav-link>
+                    </div>
+                @elseif (Auth::user()->role == 'staff')
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link href="{{ $roleInputArsip }}" :active="request()->routeIs('dashboard')">
+                            {{ __('Input Arsip') }}
+                        </x-nav-link>
+                    </div>
+                @elseif (Auth::user()->role == 'user')
                 @endif
+
             </div>
 
             <!-- Settings Dropdown -->

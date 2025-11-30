@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Cabinet;
 use App\Models\Category;
 use App\Models\DocumentRack;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -36,4 +37,10 @@ class AdminController extends Controller
         // return view('admin.archive.archive-rack', compact('raks', 'categories'));
         return view('admin.input_archive.cabinet.cabinet', compact('cabinets'));
     }
+
+    // public function kelola_user()
+    // {
+    //     $users = User::all();
+    //     return view('admin.kelola_user.kelola_user', compact('users'));
+    // }
 }

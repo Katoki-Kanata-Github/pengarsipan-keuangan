@@ -13,11 +13,20 @@
                 <h3 class="text-lg font-semibold text-gray-700">Daftar Tahun: {{ $category->sub_category_name }}
                 </h3>
 
-                <a href="{{ route('year.create_with_category', $category->id) }}"
-                    class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
-                    <img src="https://img.icons8.com/?size=20&id=EkK2AS8KSyo0&format=png&color=ffffff" class="w-5" />
-                    Tambah Tahun
-                </a>
+                <div class="flex gap-4">
+                    <a href="{{ route('subcategory.create_with_category', $category->id) }}"
+                        class="inline-flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
+                        <img src="https://img.icons8.com/?size=20&id=EkK2AS8KSyo0&format=png&color=ffffff"
+                            class="w-5" />
+                        Tambah Sub Category
+                    </a>
+                    <a href="{{ route('year.create_with_category', $category->id) }}"
+                        class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
+                        <img src="https://img.icons8.com/?size=20&id=EkK2AS8KSyo0&format=png&color=ffffff"
+                            class="w-5" />
+                        Tambah Tahun
+                    </a>
+                </div>
             </div>
 
             {{-- Daftar Tahun --}}

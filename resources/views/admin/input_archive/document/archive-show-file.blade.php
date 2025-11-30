@@ -28,6 +28,12 @@
                     <p class="text-sm font-medium text-gray-500">File Arsip</p>
 
                     @if ($archives->path_file)
+                        File saat ini: <span
+                            class="underline text-green-700">{{ basename($archives->path_file) }}</span>
+                    @else
+                        File saat ini: <span class="underline text-red-700">tidak tersedia</span>
+                    @endif
+                    @if ($archives->path_file)
                         <div class="mt-2 flex items-center gap-3">
 
                             {{-- Badge File Exists --}}
@@ -37,6 +43,7 @@
                                     alt="">
                                 File tersedia
                             </span>
+
 
                             {{-- Lihat  --}}
                             <a href="{{ asset('storage/' . $archives->path_file) }}" target="_blank"
