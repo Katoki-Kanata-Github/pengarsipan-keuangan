@@ -11,22 +11,33 @@
                 </div>
 
                 @php
-                    $roleDashboard = match (Auth::user()->role) {
-                        'admin' => route('admin.dashboard'),
-                        'user' => route('user.dashboard'),
-                        default => '#',
+                    $roleDashboard = match (Auth::user()->role_id) {
+                        10 => route('admin.dashboard'),
+                        9 => route('bendahara.dashboard'),
+                        default => route('user.dashboard'),
                     };
 
-                    $roleInputArsip = match (Auth::user()->role) {
-                        'admin' => route('admin.archive'),
+                    $roleInputArsip = match (Auth::user()->role_id) {
+                        10 => route('admin.archive'),
                         'user' => '#',
                         default => '#',
                     };
 
-                    $roleKelolaUser = match (Auth::user()->role) {
-                        'admin' => route('account.index'),
+                    $roleKelolaUser = match (Auth::user()->role_id) {
+                        10 => route('account.index'),
                         'user' => '#',
                         default => '#',
+                    };
+
+                    // ============================================= bagian user
+                    $pengajuan = match (Auth::user()->role_id) {
+                        10, 9 => '#',
+                        default => route('pengajuan.index'),
+                    };
+
+                    $worklist = match (Auth::user()->role) {
+                        10, 9 => '#',
+                        default => route('user.worklist'),
                     };
                 @endphp
 
@@ -36,7 +47,7 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
-                @if (Auth::user()->role == 'admin')
+                @if (Auth::user()->role_id == 10)
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link href="{{ $roleInputArsip }}" :active="request()->routeIs('dashboard')">
                             {{ __('Input Arsip') }}
@@ -47,13 +58,23 @@
                             {{ __('kelola user') }}
                         </x-nav-link>
                     </div>
-                @elseif (Auth::user()->role == 'staff')
+                @elseif (Auth::user()->role_id == 9)
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link href="{{ $roleInputArsip }}" :active="request()->routeIs('dashboard')">
                             {{ __('Input Arsip') }}
                         </x-nav-link>
                     </div>
-                @elseif (Auth::user()->role == 'user')
+                @else
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link href="{{ $pengajuan }}" :active="request()->routeIs('dashboard')">
+                            {{ __('Pengajuan') }}
+                        </x-nav-link>
+                    </div>
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link href="{{ $worklist }}" :active="request()->routeIs('dashboard')">
+                            {{ __('Worklist') }}
+                        </x-nav-link>
+                    </div>
                 @endif
 
             </div>

@@ -10,8 +10,11 @@ use App\Http\Controllers\Admin\DocumentRackController;
 use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\SubCategoryController;
 use App\Http\Controllers\Admin\YearController;
+use App\Http\Controllers\Bendahara\BendaharaController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\User\PengajuanController;
 use App\Http\Controllers\User\UserController;
+use App\Models\Pengajuan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -24,16 +27,24 @@ Route::get('/', function () {
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth', 'verified')->get('/dashboard', function () {
-    $role = Auth::user()->role;
-    return match ($role) {
-        'admin' => redirect()->route('admin.dashboard'),
-        'user' => redirect()->route('user.dashboard'),
-        default => abort(403),
-    };
+    $role = Auth::user()->role_id;
+    if ($role == 10) {
+        return redirect()->route('admin.dashboard');
+    } else if ($role == 9) {
+        return redirect()->route('bendahara.dashboard');
+    } else {
+        return redirect()->route('user.dashboard');
+    }
+    // return match ($role) {
+    //     '10' => redirect()->route('admin.dashboard'),
+    //     'user' => redirect()->route('user.dashboard'),
+    //     default => abort(403),
+    // };
 })->name('dashboard');
 
 Route::middleware('auth', 'verified')->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/bendahara/dashboard', [BendaharaController::class, 'index'])->name('bendahara.dashboard');
     Route::get('/user/dashboard', [UserController::class, 'index'])->name('user.dashboard');
 });
 
@@ -60,6 +71,12 @@ Route::post('/file/upload/{id}', [ArchiveFileController::class, 'update_new_file
 
 Route::get('/kelola/user', [AdminController::class, 'kelola_user'])->name('admin.kelola');
 
+// =================================================================== Route tampilan User
+// Route::get('/pengajuan', [UserController::class, 'pengajuan'])->name('user.pengajuan');
+Route::get('/worklist', [UserController::class, 'worklist'])->name('user.worklist');
+
+
+// =================================================================== Route Resource
 Route::resource('/cabinet', CabinetController::class);
 Route::resource('/category', CategoryController::class);
 Route::resource('/subcategory', SubCategoryController::class);
@@ -70,3 +87,5 @@ Route::resource('/document/file', ArchiveFileController::class);
 Route::resource('/document/search', SearchController::class);
 
 Route::resource('/account', AccountManageController::class);
+
+Route::resource('/pengajuan', PengajuanController::class);
