@@ -16,6 +16,7 @@ use App\Http\Controllers\Keuangan\KeuanganController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\PengajuanController;
 use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Models\Pengajuan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -103,3 +104,5 @@ Route::resource('/account', AccountManageController::class);
 
 Route::resource('/pengajuan', PengajuanController::class);
 Route::resource('/archive/digital', DigitalArchiveController::class);
+
+Route::get('register', [RegisteredUserController::class, 'create'])->name('register');

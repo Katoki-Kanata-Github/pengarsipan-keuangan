@@ -10,7 +10,7 @@
             <div class="space-y-6">
 
                 {{-- ================= HERO SECTION ================= --}}
-                <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-b from-[#003A8F] to-[#002766] rounded-xl shadow-lg overflow-hidden">
                     <div class="p-8">
                         <div class="flex items-center justify-between">
                             <div>
@@ -170,7 +170,7 @@
                         {{-- Buttons --}}
                         <div class="flex gap-3">
                             <button type="submit"
-                                class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white font-medium rounded-lg shadow-sm">
+                                class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-b from-[#003A8F] to-[#002766] text-white font-medium rounded-lg shadow-sm">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
@@ -220,7 +220,7 @@
 
                                 {{-- NOMOR --}}
                                 <div
-                                    class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-bold text-sm rounded-lg shadow-md">
+                                    class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-gradient-to-b from-[#003A8F] to-[#002766] text-white font-bold text-sm rounded-lg shadow-md">
                                     {{ $no++ }}
                                 </div>
 
