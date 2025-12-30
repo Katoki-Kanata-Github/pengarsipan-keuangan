@@ -73,6 +73,23 @@
                             </div>
                         </div>
 
+                        {{-- Bendahara Dituju --}}
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="p-2 bg-purple-100 rounded-lg">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-xs text-purple-600 font-medium mb-1">Bendahara Dituju</p>
+                                <p class="text-sm font-bold text-gray-800">
+                                    {{ $pengajuan->assigned_revenue_officer }}</p>
+                            </div>
+                        </div>
+
                         {{-- Status Badges --}}
                         <div class="flex flex-wrap gap-2">
                             @if ($pengajuan->status_kelengkapan == 'Belum Lengkap' && $pengajuan->status_verifikasi == 0)
@@ -152,7 +169,7 @@
                                     </p>
                                 </div>
 
-                                <a href="{{ asset('storage/' . $pengajuan->path_file_pengajuan) }}" target="_blank"
+                                <a href="{{ route('view.file', $pengajuan->id) }}" target="_blank"
                                     class="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5
                bg-blue-500 text-white text-sm font-medium rounded-lg shadow-sm">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -264,7 +281,7 @@
                                         </th>
                                         <th rowspan="2" class="px-4 py-3 border border-gray-300">Nama Dokumen & TTD
                                         </th>
-                                        <th colspan="2" class="px-4 py-3 border border-gray-300 text-center">
+                                        <th colspan="3" class="px-4 py-3 border border-gray-300 text-center">
                                             Dokumen</th>
                                         <th colspan="2" class="px-4 py-3 border border-gray-300 text-center">Tanda
                                             Tangan</th>
@@ -274,6 +291,7 @@
                                     <tr>
                                         <th class="px-4 py-2 border border-gray-300 text-center">Ada</th>
                                         <th class="px-4 py-2 border border-gray-300 text-center">Tidak Ada</th>
+                                        <th class="px-4 py-2 border border-gray-300 text-center">Tidak diperlukan</th>
                                         <th class="px-4 py-2 border border-gray-300 text-center">Lengkap</th>
                                         <th class="px-4 py-2 border border-gray-300 text-center">Belum</th>
                                     </tr>
@@ -314,6 +332,12 @@
                                             <td class="px-4 py-3 border border-gray-300 text-center">
                                                 <input type="radio" class="w-4 h-4 text-red-600" disabled
                                                     {{ isset($tidakada[$index]) && $tidakada[$index] ? 'checked' : '' }}>
+                                            </td>
+
+                                            {{-- Dokumen Tidak Diperlukan --}}
+                                            <td class="px-4 py-3 border border-gray-300 text-center">
+                                                <input type="radio" class="w-4 h-4 text-red-600" disabled
+                                                    {{ isset($tidakperlu[$index]) && $tidakperlu[$index] ? 'checked' : '' }}>
                                             </td>
 
                                             {{-- TTD Lengkap --}}

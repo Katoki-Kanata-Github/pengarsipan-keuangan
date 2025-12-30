@@ -81,7 +81,6 @@ Route::get('/keuangan/input', [KeuanganController::class, 'input_arsip'])->name(
 Route::get('/keuangan/check/{id}', [KeuanganController::class, 'check_pengajuan'])->name('keuangan.check');
 Route::put('/keuangan/update/{id}', [PengajuanController::class, 'update_check'])->name('keuangan.checkandupate');
 Route::put('/keuangan/perbaiki/{id}', [PengajuanController::class, 'perbaikan'])->name('keuangan.perbaiki');
-Route::get('/keuangan/download/{id}', [PengajuanController::class, 'download_pengajuan'])->name('keuangan.download');
 
 // ===================================================================== Route Bendahara
 Route::get('/bendahara/sign/{id}', [BendaharaController::class, 'document_sign'])->name('bendahara.sign');
@@ -103,3 +102,7 @@ Route::resource('/account', AccountManageController::class);
 
 Route::resource('/pengajuan', PengajuanController::class);
 Route::resource('/archive/digital', DigitalArchiveController::class);
+
+// ======================================================================= costum global
+Route::get('/viewfile/{id}', [PengajuanController::class, 'lihat_pengajuan'])->name('view.file');
+Route::get('/file/download/{id}', [PengajuanController::class, 'download_pengajuan'])->name('download.file');

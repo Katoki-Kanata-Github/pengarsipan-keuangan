@@ -57,6 +57,23 @@
                             </div>
                         </div>
 
+                        {{-- Bendahara Dituju --}}
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="p-2 bg-purple-100 rounded-lg">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-xs text-purple-600 font-medium mb-1">Bendahara Dituju</p>
+                                <p class="text-sm font-bold text-gray-800">
+                                    {{ $pengajuan->assigned_revenue_officer }}</p>
+                            </div>
+                        </div>
+
                         {{-- Timestamp --}}
                         <div class="flex flex-wrap items-center gap-4 text-xs text-gray-600">
                             <div class="flex items-center gap-2">
@@ -118,7 +135,7 @@
                             </div>
 
                             <div class="flex gap-2 flex-shrink-0 ml-4">
-                                <a href="{{ asset('storage/' . $pengajuan->path_file_pengajuan) }}" target="_blank"
+                                <a href="{{ route('view.file', $pengajuan->id) }}" target="_blank"
                                     class="inline-flex items-center gap-2 px-4 py-2 bg-green-500 text-white text-sm font-medium rounded-lg shadow-sm">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -129,7 +146,7 @@
                                     </svg>
                                     Lihat
                                 </a>
-                                <a href="{{ route('keuangan.download', $pengajuan->id) }}"
+                                <a href="{{ route('download.file', $pengajuan->id) }}"
                                     class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg shadow-sm">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -169,7 +186,7 @@
                                             </th>
                                             <th rowspan="2" class="px-4 py-3 border border-gray-300">Nama Dokumen &
                                                 TTD</th>
-                                            <th colspan="2" class="px-4 py-3 border border-gray-300 text-center">
+                                            <th colspan="3" class="px-4 py-3 border border-gray-300 text-center">
                                                 Dokumen</th>
                                             <th colspan="2" class="px-4 py-3 border border-gray-300 text-center">
                                                 Tanda Tangan</th>
@@ -179,6 +196,8 @@
                                         <tr>
                                             <th class="px-4 py-2 border border-gray-300 text-center">Ada</th>
                                             <th class="px-4 py-2 border border-gray-300 text-center">Tidak Ada</th>
+                                            <th class="px-4 py-2 border border-gray-300 text-center">Tidak Diperlukan
+                                            </th>
                                             <th class="px-4 py-2 border border-gray-300 text-center">Lengkap</th>
                                             <th class="px-4 py-2 border border-gray-300 text-center">Belum</th>
                                         </tr>
@@ -223,6 +242,14 @@
                                                         value="0"
                                                         {{ isset($tidakada[$index]) && $tidakada[$index] ? 'checked' : '' }}
                                                         class="w-5 h-5 text-red-600">
+                                                </td>
+
+                                                {{-- Dokumen Tidak Diperlukan --}}
+                                                <td class="px-4 py-3 border border-gray-300 text-center">
+                                                    <input type="radio" name="ada[{{ $index }}]"
+                                                        value="2"
+                                                        {{ isset($tidakperlu[$index]) && $tidakperlu[$index] ? 'checked' : '' }}
+                                                        class="w-5 h-5 text-yellow-600">
                                                 </td>
 
                                                 {{-- TTD Lengkap --}}
@@ -280,6 +307,45 @@
                             </div>
                         </div>
 
+                        {{-- Input Nomor Kuitansi Section --}}
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+                            <div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
+                                <div class="p-2 bg-indigo-100 rounded-lg">
+                                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-lg text-gray-800">Nomor Kuitansi</h3>
+                                    <p class="text-xs text-gray-500 mt-0.5">Masukkan nomor kuitansi untuk pengajuan ini
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <input type="text" name="kuitansi" value="{{ $kuitansi ?? '' }}" required
+                                    class="w-full border-2 border-gray-300 rounded-lg p-3 text-gray-800 font-medium placeholder-gray-400
+            focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 focus:outline-none
+            transition-all duration-200 bg-white shadow-sm hover:border-indigo-300"
+                                    placeholder="Contoh: KWT/2024/001">
+
+                                <div
+                                    class="flex items-start gap-2 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
+                                    <svg class="w-4 h-4 text-indigo-600 mt-0.5 flex-shrink-0" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <p class="text-xs text-indigo-800">
+                                        Nomor kuitansi bersifat opsional. Pastikan format nomor sesuai dengan standar
+                                        institusi Anda.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                         {{-- Catatan Pengembalian --}}
                         <div class="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-5 mb-6">
                             <div class="flex items-start gap-3 mb-3">
@@ -296,17 +362,30 @@
                                 placeholder="Contoh: Dokumen tanda tangan kepala divisi belum lengkap...">{{ $pengajuan->message }}</textarea>
                         </div>
 
-                        {{-- Tombol Submit --}}
-                        <div class="flex justify-end">
-                            <button type="submit" name="aksi" value="lengkap"
-                                class="inline-flex items-center gap-2 px-8 py-3 bg-emerald-500 text-white font-semibold rounded-lg shadow-md text-lg">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                Selesaikan Pemeriksaan
-                            </button>
-                        </div>
+                        @if ($pengajuan->status_diarsipkan == 1)
+                            <div class="flex justify-end">
+                                <div type="submit" name="aksi" value="lengkap"
+                                    class="inline-flex items-center gap-2 px-8 py-3 border border-gray-300 bg-gray-200 text-gray-500 font-semibold rounded-lg shadow-md text-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    File Sudah Diarsipkan
+                                </div>
+                            </div>
+                        @else
+                            {{-- Tombol Submit --}}
+                            <div class="flex justify-end">
+                                <button type="submit" name="aksi" value="lengkap"
+                                    class="inline-flex items-center gap-2 px-8 py-3 bg-emerald-500 text-white font-semibold rounded-lg shadow-md text-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Selesaikan Pemeriksaan
+                                </button>
+                            </div>
+                        @endif
 
                     </form>
 

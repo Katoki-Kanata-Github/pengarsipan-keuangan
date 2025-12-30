@@ -28,8 +28,8 @@ class PengajuanController extends Controller
     public function update_check(Request $request, $id)
     {
         $pengajuan = Pengajuan::findOrFail($id);
-        if (Storage::disk('public')->exists($pengajuan->path_file_status_kelengkapan)) {
-            $filePathMetadata = Storage::disk('public')->path($pengajuan->path_file_status_kelengkapan);
+        if (Storage::disk('private')->exists($pengajuan->path_file_status_kelengkapan)) {
+            $filePathMetadata = Storage::disk('private')->path($pengajuan->path_file_status_kelengkapan);
             $spreadsheet = IOFactory::load($filePathMetadata);
             $worksheet = $spreadsheet->getActiveSheet();
         }
@@ -52,17 +52,19 @@ class PengajuanController extends Controller
 
             $worksheet->setCellValue("D{$row}", ($ada == 1) ? 'Y' : '');
             $worksheet->setCellValue("E{$row}", ($ada == 0) ? 'Y' : '');
+            $worksheet->setCellValue("F{$row}", ($ada == 2) ? 'Y' : '');
 
-            $worksheet->setCellValue("F{$row}", ($ttd == 1) ? 'Y' : '');
-            $worksheet->setCellValue("G{$row}", ($ttd == 0) ? 'Y' : '');
+            $worksheet->setCellValue("G{$row}", ($ttd == 1) ? 'Y' : '');
+            $worksheet->setCellValue("H{$row}", ($ttd == 0) ? 'Y' : '');
 
-            $worksheet->setCellValue("H{$row}", $ket);
+            $worksheet->setCellValue("I{$row}", $ket);
 
             // NEXT
             $row++;
             $index++;
         }
         $worksheet->setCellValue("B41", $request->catatan);
+        $worksheet->getCell('B4')->setValue("Nomor : {$request->kuitansi}");
         $writer = new Xlsx($spreadsheet);
         $writer->save($filePathMetadata);
 
@@ -72,16 +74,23 @@ class PengajuanController extends Controller
         $status_lengkap = false;
         while ($row <= $endRow) {
             $valueADA = $worksheet->getCell("D{$row}")->getValue();
-            $valueLengkap = $worksheet->getCell("F{$row}")->getValue();
-            if ($valueADA === '' || $valueADA === null) {
-                $status_lengkap = 'Belum Lengkap';
-                $status_verifikasi = false;
-                break;
-            }
-            if ($valueLengkap === '' || $valueLengkap === null) {
-                $status_lengkap = 'Belum Lengkap';
-                $status_verifikasi = false;
-                break;
+            $valueADAtidakperlu = $worksheet->getCell("F{$row}")->getValue();
+            $valueLengkap = $worksheet->getCell("G{$row}")->getValue();
+
+            if ($valueADAtidakperlu === 'Y') {
+                $status_lengkap = 'Lengkap';
+                $status_verifikasi = true;
+            } else {
+                if ($valueADA === '' || $valueADA === null) {
+                    $status_lengkap = 'Belum Lengkap';
+                    $status_verifikasi = false;
+                    break;
+                }
+                if ($valueLengkap === '' || $valueLengkap === null) {
+                    $status_lengkap = 'Belum Lengkap';
+                    $status_verifikasi = false;
+                    break;
+                }
             }
             $status_lengkap = 'Lengkap';
             $status_verifikasi = true;
@@ -89,15 +98,103 @@ class PengajuanController extends Controller
             $row++;
         }
 
+        // === TENTUKAN FILE SOURCE ===
+        if (
+            $pengajuan->path_file_pengajuan &&
+            Storage::disk('private')->exists($pengajuan->path_file_pengajuan) &&
+            $status_lengkap == 'Lengkap' &&
+            $status_verifikasi
+        ) {
+            $sourcePath = $pengajuan->path_file_pengajuan;
+            // === TAMBAH WATERMARK ===
+            $this->addWatermarkToPdf($sourcePath);
+        }
+
+
         $pengajuan->update([
             'finance_officers_id' => Auth::user()->id,
             'message' => $request->catatan,
             'status_kelengkapan' => $status_lengkap,
             'status_verifikasi' => $status_verifikasi,
-            'status_dikembalikan' => 1,
+            'is_marked' => ($status_lengkap == 'Lengkap' && $status_verifikasi == 1 ? 1 : 0),
+            'status_dikembalikan' => ($status_lengkap == 'Lengkap' && $status_verifikasi == 1 ? 0 : 1),
         ]);
 
         return redirect()->route('keuangan.dashboard')->with('success', 'Berhasil kirim tanggapan');
+    }
+
+    private function addWatermarkToPdf(string $filePath)
+    {
+        if (!Storage::disk('private')->exists($filePath)) {
+            Log::error('File PDF tidak ditemukan: ' . $filePath);
+            throw new \Exception('File PDF tidak ditemukan');
+        }
+
+        $fullPath = Storage::disk('private')->path($filePath);
+
+        $mpdf = new Mpdf([
+            'tempDir' => storage_path('app/mpdf'),
+        ]);
+
+        // === LOAD FILE PDF ASLI ===
+        $pageCount = $mpdf->SetSourceFile($fullPath);
+
+        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+
+            $tplId = $mpdf->ImportPage($pageNo);
+            $size  = $mpdf->getTemplateSize($tplId);
+
+            $mpdf->AddPageByArray([
+                'orientation' => $size['orientation'],
+                'width'       => $size['width'],
+                'height'      => $size['height'],
+            ]);
+
+            $mpdf->UseTemplate($tplId);
+
+            // === GARIS MERAH SOLID DI KIRI (LEBIH TIPIS + OPACITY 50%) ===
+            $mpdf->SetAlpha(0.5); // Opacity 50%
+            $mpdf->SetDrawColor(255, 0, 0); // Merah
+            $mpdf->SetLineWidth(0.5); // Lebih tipis (dari 2 jadi 0.5)
+            $mpdf->Line(5, 0, 5, $size['height']);
+            $mpdf->SetAlpha(1); // Reset opacity
+
+            // === WATERMARK GAMBAR (60% HALAMAN, CENTER, OPACITY 50%) ===
+            $watermarkPath = storage_path('app/public/images/watermark.png');
+
+            if (file_exists($watermarkPath)) {
+
+                [$imgW, $imgH] = getimagesize($watermarkPath);
+                $imgRatio = $imgW / $imgH;
+
+                // Target maksimum 60% halaman (dari 80% jadi 60%)
+                $maxW = $size['width'] * 0.6;
+                $maxH = $size['height'] * 0.6;
+
+                // Hitung ukuran dengan menjaga rasio
+                if ($maxW / $maxH > $imgRatio) {
+                    // tinggi pembatas
+                    $wmHeight = $maxH;
+                    $wmWidth  = $wmHeight * $imgRatio;
+                } else {
+                    // lebar pembatas
+                    $wmWidth  = $maxW;
+                    $wmHeight = $wmWidth / $imgRatio;
+                }
+
+                // Center posisi
+                $x = ($size['width']  - $wmWidth)  / 2;
+                $y = ($size['height'] - $wmHeight) / 2;
+
+                $mpdf->SetAlpha(0.2); // Opacity 50% (dari 0.2 jadi 0.5)
+                $mpdf->Image($watermarkPath, $x, $y, $wmWidth, $wmHeight);
+                $mpdf->SetAlpha(1); // Reset opacity
+            }
+        }
+
+        $mpdf->Output($fullPath, 'F');
+
+        Log::info('Watermark PDF berhasil: ' . $filePath);
     }
 
     public function perbaikan(Request $request, $id)
@@ -108,11 +205,11 @@ class PengajuanController extends Controller
         ]);
 
         if ($request->file_pengajuan) {
-            if ($pengajuan->path_file_pengajuan && Storage::disk('public')->exists($pengajuan->path_file_pengajuan)) {
-                Storage::disk('public')->delete($pengajuan->path_file_pengajuan);
+            if ($pengajuan->path_file_pengajuan && Storage::disk('private')->exists($pengajuan->path_file_pengajuan)) {
+                Storage::disk('private')->delete($pengajuan->path_file_pengajuan);
 
                 $file = $request->file('file_pengajuan');
-                $path = $file->storeAs('pengajuan', $file->getClientOriginalName(), 'public');
+                $path = $file->storeAs('pengajuan', $file->getClientOriginalName(), 'private');
             }
         } else {
             $path = $pengajuan->path_file_pengajuan;
@@ -131,6 +228,7 @@ class PengajuanController extends Controller
 
         $pengajuan->update([
             'path_file_pengajuan' => $path,
+            'is_marked' => 0,
             'status_dikembalikan' => 0,
             // 'path_file_status_kelengkapan' => $destinationPath,
         ]);
@@ -142,11 +240,22 @@ class PengajuanController extends Controller
     {
         $file_metadata = Pengajuan::findOrFail($id);
 
-        $path = Storage::disk('public')->path($file_metadata->path_file_pengajuan);
+        $path = Storage::disk('private')->path($file_metadata->path_file_pengajuan);
 
         $fileName = basename($file_metadata->path_file_pengajuan);
 
         return response()->download($path, $fileName);
+    }
+
+    public function lihat_pengajuan($id) // jika sudah diarsipkan
+    {
+        $file_pengajuan = Pengajuan::findOrFail($id);
+
+        $path = Storage::disk('private')->path($file_pengajuan->path_file_pengajuan);
+
+        // $fileName = basename($file_pengajuan->path_file_pengajuan);
+
+        return response()->file($path);
     }
 
     public function final_verification(Request $request, $id)
@@ -158,25 +267,24 @@ class PengajuanController extends Controller
 
             if (
                 $pengajuan->path_file_pengajuan &&
-                Storage::disk('public')->exists($pengajuan->path_file_pengajuan)
+                Storage::disk('private')->exists($pengajuan->path_file_pengajuan)
             ) {
-                Storage::disk('public')->delete($pengajuan->path_file_pengajuan);
+                Storage::disk('private')->delete($pengajuan->path_file_pengajuan);
             }
 
             $file = $request->file('file_pengajuan');
             $filename = $file->getClientOriginalName();
-            $sourcePath = $file->storeAs('pengajuan', $filename, 'public');
+            $sourcePath = $file->storeAs('pengajuan', $filename, 'private');
         } else {
             $sourcePath = $pengajuan->path_file_pengajuan;
         }
 
-        // === TAMBAH WATERMARK ===
-        $this->addWatermarkToPdf($sourcePath);
-
         // === UPDATE DB ===
         $pengajuan->update([
+            'revenue_officer_id' => Auth::id(),
             'path_file_pengajuan' => $sourcePath,
             'status_diarsipkan'   => 1,
+            'nominal' => $request->biaya,
         ]);
 
         // add to digital archive
@@ -204,77 +312,6 @@ class PengajuanController extends Controller
             ->with('success', 'Berhasil verifikasi final pengajuan');
     }
 
-    private function addWatermarkToPdf(string $filePath)
-    {
-        if (!Storage::disk('public')->exists($filePath)) {
-            Log::error('File PDF tidak ditemukan: ' . $filePath);
-            throw new \Exception('File PDF tidak ditemukan');
-        }
-
-        $fullPath = Storage::disk('public')->path($filePath);
-
-        $mpdf = new Mpdf([
-            'tempDir' => storage_path('app/mpdf'),
-        ]);
-
-        // === LOAD FILE PDF ASLI ===
-        $pageCount = $mpdf->SetSourceFile($fullPath);
-
-        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
-
-            $tplId = $mpdf->ImportPage($pageNo);
-            $size  = $mpdf->getTemplateSize($tplId);
-
-            $mpdf->AddPageByArray([
-                'orientation' => $size['orientation'],
-                'width'       => $size['width'],
-                'height'      => $size['height'],
-            ]);
-
-            $mpdf->UseTemplate($tplId);
-
-            // === GARIS MERAH SOLID DI KIRI ===
-            $mpdf->SetDrawColor(255, 0, 0);
-            $mpdf->SetLineWidth(2);
-            $mpdf->Line(15, 0, 15, $size['height']);
-
-            // === WATERMARK GAMBAR (80% HALAMAN, CENTER) ===
-            $watermarkPath = storage_path('app/public/images/watermark.png');
-
-            if (file_exists($watermarkPath)) {
-
-                [$imgW, $imgH] = getimagesize($watermarkPath);
-                $imgRatio = $imgW / $imgH;
-
-                // Target maksimum 80% halaman
-                $maxW = $size['width'] * 0.8;
-                $maxH = $size['height'] * 0.8;
-
-                // Hitung ukuran dengan menjaga rasio
-                if ($maxW / $maxH > $imgRatio) {
-                    // tinggi pembatas
-                    $wmHeight = $maxH;
-                    $wmWidth  = $wmHeight * $imgRatio;
-                } else {
-                    // lebar pembatas
-                    $wmWidth  = $maxW;
-                    $wmHeight = $wmWidth / $imgRatio;
-                }
-
-                // Center posisi
-                $x = ($size['width']  - $wmWidth)  / 2;
-                $y = ($size['height'] - $wmHeight) / 2;
-
-                $mpdf->SetAlpha(0.2);
-                $mpdf->Image($watermarkPath, $x, $y, $wmWidth, $wmHeight);
-                $mpdf->SetAlpha(1);
-            }
-        }
-
-        $mpdf->Output($fullPath, 'F');
-
-        Log::info('Watermark PDF berhasil: ' . $filePath);
-    }
 
     /**
      * Show the form for creating a new resource.
@@ -287,7 +324,7 @@ class PengajuanController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request) // revisi tanggal
     {
         $request->validate([
             'nama_pengajuan' => 'required|string',
@@ -301,7 +338,7 @@ class PengajuanController extends Controller
         // simpan file pdf pengajuan
         if (isset($request->file)) {
             $file = $request->file('file');
-            $path = $file->storeAs('pengajuan', $file->getClientOriginalName(), 'public');
+            $path = $file->storeAs('pengajuan', $file->getClientOriginalName(), 'private');
         } else {
             $path = null;
         }
@@ -309,38 +346,41 @@ class PengajuanController extends Controller
         // copy file checklist untuk kelengkapan pengajuan
         $fileName = 'CHECKLIST.xlsx';
         $sourcePath = 'template/' . $fileName;
+
         // ubah spasi menjadi underscore
         $namaPengajuan = str_replace(' ', '_', $request->nama_pengajuan);
         $newFileName = $namaPengajuan . '_' . $fileName;
         $destinationPath = 'metadata_pengajuan/' . $newFileName;
 
         // Cek apakah file source ada
-        if (Storage::disk('public')->exists($sourcePath)) {
+        if (Storage::disk('private')->exists($sourcePath)) {
 
             // Pastikan folder tujuan ada
             $destinationDir = 'metadata_pengajuan';
-            if (!Storage::disk('public')->exists($destinationDir)) {
-                Storage::disk('public')->makeDirectory($destinationDir);
+            if (!Storage::disk('private')->exists($destinationDir)) {
+                Storage::disk('private')->makeDirectory($destinationDir);
             }
 
             // Copy file
-            Storage::disk('public')->copy($sourcePath, $destinationPath);
+            Storage::disk('private')->copy($sourcePath, $destinationPath);
         }
 
         $pengajuan = Pengajuan::create([
             'user_id' => $iduser,
             'pengajuan_name' => $request->nama_pengajuan,
+            'assigned_revenue_officer' => $request->assigned_revenue,
             'path_file_pengajuan' => $path,
             'status_kelengkapan' => $status_kelengkapan,
             'status_verifikasi' => $status_verifikasi,
             'path_file_status_kelengkapan' => $destinationPath,
             'status_diarsipkan' => 0,
+            'is_marked' => 0,
             'status_dikembalikan' => 0,
             'message' => null,
         ]);
 
-        if (Storage::disk('public')->exists($pengajuan->path_file_status_kelengkapan)) {
-            $filePathMetadata = Storage::disk('public')->path($pengajuan->path_file_status_kelengkapan);
+        if (Storage::disk('private')->exists($pengajuan->path_file_status_kelengkapan)) {
+            $filePathMetadata = Storage::disk('private')->path($pengajuan->path_file_status_kelengkapan);
             $spreadsheet = IOFactory::load($filePathMetadata);
             $worksheet = $spreadsheet->getActiveSheet();
             $worksheet->setCellValue("B3", 'Nama Kegiatan : ' . $request->nama_pengajuan);
@@ -354,11 +394,11 @@ class PengajuanController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id) // oke
     {
         $pengajuan = Pengajuan::with('finance_officer')->findOrFail($id);
-        if (Storage::disk('public')->exists($pengajuan->path_file_status_kelengkapan)) {
-            $filePathMetadata = Storage::disk('public')->path($pengajuan->path_file_status_kelengkapan);
+        if (Storage::disk('private')->exists($pengajuan->path_file_status_kelengkapan)) {
+            $filePathMetadata = Storage::disk('private')->path($pengajuan->path_file_status_kelengkapan);
             $spreadsheet = IOFactory::load($filePathMetadata);
             $worksheet = $spreadsheet->getActiveSheet();
         }
@@ -477,16 +517,16 @@ class PengajuanController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id) // oke
     {
         $pengajuan = Pengajuan::findOrFail($id);
 
-        if ($pengajuan->path_file_pengajuan && Storage::disk('public')->exists($pengajuan->path_file_pengajuan)) {
-            Storage::disk('public')->delete($pengajuan->path_file_pengajuan);
+        if ($pengajuan->path_file_pengajuan && Storage::disk('private')->exists($pengajuan->path_file_pengajuan)) {
+            Storage::disk('private')->delete($pengajuan->path_file_pengajuan);
         }
 
-        if ($pengajuan->path_file_status_kelengkapan && Storage::disk('public')->exists($pengajuan->path_file_status_kelengkapan)) {
-            Storage::disk('public')->delete($pengajuan->path_file_status_kelengkapan);
+        if ($pengajuan->path_file_status_kelengkapan && Storage::disk('private')->exists($pengajuan->path_file_status_kelengkapan)) {
+            Storage::disk('private')->delete($pengajuan->path_file_status_kelengkapan);
         }
 
         $pengajuan->delete();

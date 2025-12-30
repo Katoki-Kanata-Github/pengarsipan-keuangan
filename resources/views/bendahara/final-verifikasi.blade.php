@@ -167,7 +167,7 @@
                         </div>
 
                         <div class="flex flex-wrap gap-3 mt-5 pt-5 border-t border-gray-200">
-                            <a href="{{ asset('storage/' . $pengajuan->path_file_pengajuan) }}" target="_blank"
+                            <a href="{{ route('view.file', $pengajuan->id) }}" target="_blank"
                                 class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700
                    text-white text-sm font-medium rounded-lg shadow-sm transition">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -179,7 +179,7 @@
                                 Lihat Dokumen
                             </a>
 
-                            <a href="{{ route('keuangan.download', $pengajuan->id) }}"
+                            <a href="{{ route('download.file', $pengajuan->id) }}"
                                 class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200
                    text-gray-700 text-sm font-medium rounded-lg shadow-sm transition">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,6 +214,50 @@
                 border-2 border-gray-300 rounded-xl
                 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400
                 transition duration-150">
+
+                            {{-- Input Biaya yang Dibayarkan --}}
+                            <div class="bg-white border-2 border-gray-200 rounded-lg p-6 mb-6">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="p-2 bg-green-100 rounded-lg">
+                                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <label class="block font-semibold text-gray-800 text-sm">Biaya yang
+                                            Dibayarkan</label>
+                                        <p class="text-xs text-gray-500 mt-0.5">Masukkan nominal biaya untuk pengajuan
+                                            ini</p>
+                                    </div>
+                                </div>
+
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <span class="text-gray-700 font-semibold text-base">Rp</span>
+                                    </div>
+                                    <input type="number" name="biaya" value="{{ $pengajuan->biaya ?? '' }}"
+                                        class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg text-gray-800 font-medium
+            placeholder-gray-400 focus:ring-2 focus:ring-green-400 focus:border-green-500 focus:outline-none
+            transition-all duration-200 bg-white shadow-sm hover:border-green-300"
+                                        placeholder="0" min="0" step="1000">
+                                </div>
+
+                                <div
+                                    class="flex items-start gap-2 mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                                    <svg class="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <p class="text-xs text-green-800">
+                                        Masukkan nominal biaya dalam Rupiah. Pastikan nominal sesuai dengan dokumen
+                                        pengajuan.
+                                    </p>
+                                </div>
+                            </div>
 
                             <button type="submit"
                                 class="w-full sm:w-auto px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold

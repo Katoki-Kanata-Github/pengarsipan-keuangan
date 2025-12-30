@@ -297,7 +297,7 @@
                                 </div>
                             </div>
 
-                            <a href="{{ asset('storage/' . $pengajuan->path_file_pengajuan) }}" target="_blank"
+                            <a href="{{ route('view.file', $pengajuan->id) }}" target="_blank"
                                 class="ml-4 inline-flex items-center gap-2 px-5 py-2.5
                                bg-blue-500 text-white font-medium rounded-lg
                                shadow-md hover:bg-blue-600 hover:shadow-lg
