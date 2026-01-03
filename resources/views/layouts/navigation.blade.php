@@ -5,12 +5,11 @@
             {{-- LOGO/BRAND --}}
             <div class="flex items-center">
                 <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 group">
-                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-300">
-                        <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                    </div>
-                    <span class="text-xl font-bold text-white hidden sm:block">YourApp</span>
+                    <img src="{{ asset('images/Logo.png') }}" class="h-12" alt="Logo">
+                    <span class="text-xl font-bold bg-gradient-to-b from-[#ffffff] to-[#6895fd] 
+                                    bg-clip-text text-transparent tracking-wide hidden sm:block">
+                            VANTRANS-AKU
+                    </span>
                 </a>
             </div>
 

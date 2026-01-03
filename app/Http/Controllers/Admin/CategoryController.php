@@ -8,6 +8,8 @@ use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\Year;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
 
 class CategoryController extends Controller
 {
@@ -41,10 +43,18 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'cabinet_id' => 'required|exists:cabinets,id',
+            'name'       => 'required|string|max:255',
+            'deskripsi'  => 'nullable|string',
+            'url'        => 'nullable|string',
+        ]);
+
+        $code = strtoupper(Str::slug($request->name, '-'));
         Category::create([
             'cabinet_id' => $request->cabinet_id,
             'category_name' => $request->name,
-            'category_code' => $request->name,
+            'category_code' => $code,
             'description' => $request->deskripsi,
             'url_icon' => $request->url,
         ]);

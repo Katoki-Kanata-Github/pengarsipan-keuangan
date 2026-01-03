@@ -5,7 +5,11 @@
                 <div class="flex flex-col items-center mb-6">
                     <div class="flex items-center gap-3">
                         <img src="{{ asset('images/tvri.png') }}" class="h-12" alt="TVRI">
-                        <img src="{{ asset('images/SIROCE.png') }}" class="h-7" alt="SIROCE">
+                        <span class="text-2xl font-extrabold bg-gradient-to-b from-[#001f65] to-[#6895fd] 
+                                    bg-clip-text text-transparent tracking-wide">
+                            VANTRANS-AKU
+                        </span>
+
                     </div>
                     <h2 class="text-sm text-gray-700 mt-3 text-center">Selamat Datang di Sistem Informasi Ruang Keuangan</h2>
                 </div>

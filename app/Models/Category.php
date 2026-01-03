@@ -12,6 +12,7 @@ class Category extends Model
     protected $fillable = [
         'cabinet_id',
         'category_name',
+        'category_code',
         'description',
         'url_icon',
         'path_icon',

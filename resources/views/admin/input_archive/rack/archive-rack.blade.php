@@ -1,49 +1,54 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-2xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Daftar Rak Arsip') }}
         </h2>
     </x-slot>
 
-    <div class="py-10 bg-gray-50 min-h-screen">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+    {{-- TOMBOL KEMBALI --}}
+    <div class="#">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+            <a href="{{ route('category.show', $year->category_id) }}"
+                class="inline-flex items-center gap-2 bg-gray-100 text-gray-700 px-2 py-2 rounded-full border border-gray-200
+                    shadow-lg transition-all duration-200 ease-in-out hover:bg-gray-400 hover:shadow-md active:bg-gray-300 active:scale-95">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+            </a>             
+        </div>
+    </div>
 
-            {{-- Search Bar --}}
-            {{-- <form action="{{ route('search.index') }}" method="GET" class="mb-6">
-                <div class="relative flex items-center">
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama file"
-                        class="w-full bg-white border border-gray-300 rounded-xl py-2.5 pl-12 pr-4 text-gray-700 placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition">
+    <div class="py-4 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                    <div class="absolute left-4 text-gray-400">
-                        <img src="https://img.icons8.com/?size=24&id=111098&format=png&color=9ca3af" class="w-5" />
+            {{-- Header Card --}}
+            <div class="relative overflow-hidden bg-white rounded-xl shadow-xl p-8 mb-8 border border-gray-100">
+        
+                <div class="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-b from-[#003A8F] to-[#002766] rounded-lg flex items-center justify-center shadow-lg">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">
+                                Kelola Rak Arsip
+                            </h3>
+                            <p class="text-sm font-semibold text-gray-500">Total Rak : {{ $racks->count() }} Item</p>
+                        </div>
                     </div>
 
-                    <button type="submit"
-                        class="ml-3 px-5 py-2.5 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 shadow-md transition flex items-center gap-2">
-                        <img src="https://img.icons8.com/?size=24&id=7695&format=png&color=ffffff" class="w-5" />
-                        Cari
-                    </button>
-                </div>
-            </form> --}}
-
-
-
-            <div class="bg-white shadow-md sm:rounded-xl p-6 border border-gray-200">
-                <div class="flex justify-between items-start mb-6">
-                    <h3 class="text-lg font-semibold text-gray-700">Kelola Rak Arsip</h3>
-
                     <div class="flex items-center gap-3">
-                        {{-- Tombol Tambah Kategori --}}
-                        {{-- <a href="{{ route('category.create') }}"
-                            class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
-                            <img src="https://img.icons8.com/?size=24&id=48427&format=png&color=ffffff"
-                                class="w-5" />
-                            Tambah Kategori Rak
-                        </a> --}}
-
                         {{-- Tombol Tambah Rak --}}
                         <a href="{{ route('rack.create_with_year', $year->id) }}"
-                            class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
+                            class="inline-flex items-center gap-2 px-4 py-2
+                                   bg-gradient-to-r from-emerald-500 to-teal-600
+                                   hover:from-emerald-600 hover:to-teal-700
+                                   text-white font-medium rounded-lg
+                                   shadow-lg hover:shadow-xl
+                                   transform hover:-translate-y-0.5
+                                   transition-all duration-200">
                             <img src="https://img.icons8.com/?size=24&id=48427&format=png&color=ffffff"
                                 class="w-5" />
                             Tambah Rak Arsip
@@ -51,58 +56,28 @@
                     </div>
                 </div>
 
-                {{-- Filter Kategori --}}
-                {{-- <form action="{{ route('admin.rack.archive') }}" method="GET" class="mb-6">
-                    <div class="flex items-center gap-3 bg-gray-100 p-4 rounded-xl border border-gray-200">
-
-                        <label for="category_id" class="text-gray-700 font-medium">
-                            Filter Kategori:
-                        </label>
-
-                        <select name="category_id" id="category_id"
-                            class="max-w-md w-full rounded-lg border-gray-300 bg-white py-2 px-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-
-                            <option value="">Semua</option>
-
-                            @foreach ($categories as $category)
-                                <option value="{{ $category->id }}"
-                                    {{ request('category_id') == $category->id ? 'selected' : '' }}>
-                                    {{ $category->category_name }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        <button type="submit"
-                            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow transition flex items-center gap-2">
-                            <img src="https://img.icons8.com/?size=24&id=7695&format=png&color=ffffff" class="w-4" />
-                            Terapkan
-                        </button>
-
-                        <a href="{{ route('admin.rack.archive') }}"
-                            class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg shadow transition">
-                            Reset
-                        </a>
-                    </div>
-                </form> --}}
-
-
-
                 {{-- Daftar Rak --}}
                 @php $no = 1; @endphp
 
                 @if ($racks->count() > 0)
-                    <div class="divide-y divide-gray-200 rounded-lg border border-gray-100">
+                    <div class="mt-10 space-y-4 rounded-lg">
                         @foreach ($racks as $rak)
-                            <div
-                                class="flex items-center justify-between p-4 hover:bg-gray-50 transition duration-150 ease-in-out group rounded-md">
+                        <div class="flex items-center justify-between p-4 bg-white border border-gray-400 rounded-lg
+                                    shadow-sm hover:shadow-md hover:bg-gray-300 transition-all duration-200 group">
 
                                 {{-- Bagian Klik Utama --}}
                                 <a href="{{ route('rak.show', $rak->id) }}"
                                     class="flex items-center gap-4 flex-1 group-hover:text-indigo-600">
-                                    <div
-                                        class="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 font-semibold">
+                                    <div class="w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-b from-[#003A8F] to-[#002766] text-white font-semibold">
                                         {{ $no++ }}
                                     </div>
+
+                                    <div class="w-12 h-12 flex items-center justify-center bg-white rounded-lg border-2 border-cyan-400 group-hover:border-cyan-400 group-hover:scale-110 transition-all duration-300 shadow-md">
+                                        <svg class="w-7 h-7 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                                        </svg>
+                                    </div>
+
                                     <div class="space-y-1">
                                         {{-- Nama Rak --}}
                                         <p class="text-gray-900 font-semibold text-base leading-tight">
@@ -118,24 +93,14 @@
                                                     class="w-4 opacity-70">
                                                 {{ $rak->kode_rack ?? '-' }}
                                             </span>
-
-                                            {{-- Kategori
-                                            <span
-                                                class="flex items-center gap-1 bg-indigo-100 px-2 py-0.5 rounded-lg text-indigo-700">
-                                                <img src="https://img.icons8.com/?size=16&id=99268&format=png&color=4f46e5"
-                                                    class="w-4 opacity-70">
-                                                {{ $rak->category->category_name ?? '-' }}
-                                            </span> --}}
-
                                         </div>
                                     </div>
-
                                 </a>
 
                                 {{-- Tombol Aksi --}}
                                 <div class="flex items-center gap-2 ml-4">
                                     <a href="{{ route('rak.edit', $rak->id) }}"
-                                        class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-md p-2 transition"
+                                        class="flex items-center justify-center bg-amber-500 hover:bg-orange-600 rounded-md p-2 transition"
                                         title="Edit">
                                         <img src="https://img.icons8.com/?size=24&id=88584&format=png&color=ffffff"
                                             alt="edit">
@@ -157,21 +122,17 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="text-center py-10 text-gray-500">
-                        <img src="https://img.icons8.com/?size=96&id=102550&format=png&color=9ca3af"
-                            class="mx-auto mb-3 opacity-70" alt="no data">
-                        <p>Tidak ada rak arsip yang tersedia.</p>
+                {{-- Empty State --}}
+                <div class="mt-10 text-center bg-white rounded-2xl shadow-md border border-gray-200 py-24">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mb-6 shadow-inner">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
                     </div>
-                @endif
-                {{-- Tombol Kembali --}}
-                <div class="mt-6">
-                    <a href="{{ route('cabinet.show', $category->cabinet_id) }}"
-                        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 rounded-lg font-medium transition">
-                        Kembali
-                    </a>
-
+                    <p class="text-xl font-semibold text-gray-700 mb-3">Belum Ada Rak Arsip</p>
+                    <p class="text-gray-500 mb-8 max-w-md mx-auto">Tidak ada rak arsip yang tersedia. Silakan tambahkan rak pertama untuk mulai menyimpan dokumen Anda.</p>
                 </div>
-            </div>
+            @endif
         </div>
     </div>
 </x-app-layout>

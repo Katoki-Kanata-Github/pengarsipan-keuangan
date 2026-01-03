@@ -5,25 +5,26 @@
         </h2>
     </x-slot>
 
+    {{-- Tombol Kembali --}}
+    <div class="#">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+            <a href="{{ route('user.worklist') }}"
+                class="inline-flex items-center gap-2 bg-gray-100 text-gray-700 px-2 py-2 rounded-full border border-gray-200
+                    shadow-lg transition-all duration-200 ease-in-out hover:bg-gray-400 hover:shadow-md active:bg-gray-300 active:scale-95">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+            </a>             
+        </div>
+    </div>
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-8 bg-gradient-to-br from-gray-50 to-blue-50/30">
 
-                    {{-- Tombol Kembali --}}
-                    <div class="mb-6">
-                        <a href="{{ route('user.worklist') }}"
-                            class="inline-flex items-center gap-2 px-6 py-3
-                            bg-white text-gray-700 font-medium rounded-lg
-                            border border-gray-300 shadow-sm">
-                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 19l-7-7 7-7"></path>
-                            </svg>
-                            Kembali
-                        </a>
-                    </div>
+                    
 
                     {{-- Header Informasi --}}
                     <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6">
