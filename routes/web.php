@@ -5,18 +5,15 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ArchiveFileController;
 use App\Http\Controllers\Admin\CabinetController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\DocumentFolderController;
-use App\Http\Controllers\Admin\DocumentRackController;
+use App\Http\Controllers\Admin\FolderController;
 use App\Http\Controllers\Admin\SearchController;
-use App\Http\Controllers\Admin\SubCategoryController;
-use App\Http\Controllers\Admin\YearController;
 use App\Http\Controllers\Bendahara\BendaharaController;
 use App\Http\Controllers\Bendahara\DigitalArchiveController;
 use App\Http\Controllers\Keuangan\KeuanganController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\PengajuanController;
 use App\Http\Controllers\User\UserController;
-use App\Models\Pengajuan;
+use App\Models\DocumentFolder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -57,16 +54,45 @@ Route::middleware('auth')->group(function () {
 require __DIR__ . '/auth.php';
 
 // =============================================================================================== route tampilan admin
+Route::get('/create/category/{id}', [CategoryController::class, 'create_category_form_cabinet'])->name('category.create');
+Route::get('/list/category/{id}', [CategoryController::class, 'all_list'])->name('category.list');
+Route::delete('/delete/category/{id}', [CategoryController::class, 'destroy_category'])->name('category.delete');
+Route::get('/edit/category/{id}', [CategoryController::class, 'edit_category'])->name('category.edit');
+Route::put('/update/category/{id}', [CategoryController::class, 'update_category'])->name('category.update');
+
+Route::get('/list/subcategory/{id}', [CategoryController::class, 'create_sub_category'])->name('subcategory.create');
+Route::post('/create/subcategory/{id}', [CategoryController::class, 'add_subcategory'])->name('subcategory.store');
+Route::get('/create/subcategory/{id}', [CategoryController::class, 'sub_category_show'])->name('subcategory.show');
+Route::get('/edit/subcategory/{id}', [CategoryController::class, 'edit_subcategory'])->name('subcategory.edit');
+Route::put('/update/subcategory/{id}', [CategoryController::class, 'update_subcategory'])->name('subcategory.update');
+Route::delete('/delete/subcategory/{id}', [CategoryController::class, 'destroy_subcategory'])->name('subcategory.delete');
+
+Route::get('/list/year/{id}', [CategoryController::class, 'create_year'])->name('year.create');
+Route::post('/create/year/{id}', [CategoryController::class, 'add_year'])->name('year.store');
+Route::delete('/delete/year/{id}', [CategoryController::class, 'destroy_year'])->name('year.delete');
+Route::get('/edit/year/{id}', [CategoryController::class, 'edit_year'])->name('year.edit');
+Route::put('/update/year/{id}', [CategoryController::class, 'update_year'])->name('year.update');
+Route::get('/list/rack/{id}', [CategoryController::class, 'year_show'])->name('year.show');
+
+Route::get('/create/rack/{id}', [FolderController::class, 'create_rack'])->name('rack.create');
+Route::post('/add/rack', [FolderController::class, 'add_rack'])->name('rack.store');
+Route::get('/edit/rack/{id}', [FolderController::class, 'edit_rack'])->name('rack.edit');
+Route::put('/update/rack/{id}', [FolderController::class, 'update_rack'])->name('rack.update');
+Route::delete('/delete/rack/{id}', [FolderController::class, 'destroy_rack'])->name('rack.delete');
+Route::get('/list/folder/{id}', [FolderController::class, 'rack_show'])->name('rack.show');
+
+Route::get('/create/folder/{id}', [FolderController::class, 'create_folder'])->name('folder.create');
+Route::post('/create/folder/{id}', [FolderController::class, 'add_folder'])->name('folder.store');
+Route::get('/edit/folder/{id}', [FolderController::class, 'edit_folder'])->name('folder.edit');
+Route::put('/update/folder/{id}', [FolderController::class, 'update_folder'])->name('folder.update');
+Route::delete('/delete/folder/{id}', [FolderController::class, 'destroy_folder'])->name('folder.delete');
+
+Route::get('/list/archive/{id}', [FolderController::class, 'folder_show'])->name('archive.list');
+
 Route::get('/input/archive', [AdminController::class, 'input_archive'])->name('admin.archive');
-Route::get('/category/list/{id}', [CategoryController::class, 'index_list'])->name('category.list_with_cabinet');
-Route::get('/category/create/{id}', [CategoryController::class, 'create_with_cabinet'])->name('category.create_with_cabinet');
-Route::get('/subcategory/create/{id}', [SubCategoryController::class, 'create_with_category'])->name('subcategory.create_with_category');
-Route::get('/year/create/{id}', [YearController::class, 'create_with_category'])->name('year.create_with_category');
-Route::get('/subyear/create/{id}', [YearController::class, 'create_with_subcategory'])->name('subyear.create_with_subcategory');
-Route::get('/rak/create/{id}', [DocumentRackController::class, 'create_with_year'])->name('rack.create_with_year');
-Route::get('/folder/create/{id}', [DocumentFolderController::class, 'create_wit_rack'])->name('folder.create_with_rack');
 Route::get('/file/create/{id}', [ArchiveFileController::class, 'create_with_folder'])->name('file.create_with_folder');
-Route::get('/file/download/{id}', [ArchiveFileController::class, 'download_file'])->name('archive.download');
+Route::get('/file/download/archive/{id}', [ArchiveFileController::class, 'download_file'])->name('file.download.archive');
+Route::get('/file/{id}', [ArchiveFileController::class, 'name_file'])->name('archive.looks');
 Route::post('/file/upload/{id}', [ArchiveFileController::class, 'update_new_file'])->name('archive.upload.store');
 
 Route::get('/kelola/user', [AdminController::class, 'kelola_user'])->name('admin.kelola');
@@ -91,10 +117,6 @@ Route::get('/archive/pengajuan/show/{id}', [DigitalArchiveController::class, 'sh
 // =================================================================== Route Resource
 Route::resource('/cabinet', CabinetController::class);
 Route::resource('/category', CategoryController::class);
-Route::resource('/subcategory', SubCategoryController::class);
-Route::resource('/year', YearController::class);
-Route::resource('/document/rak', DocumentRackController::class);
-Route::resource('/document/folder', DocumentFolderController::class);
 Route::resource('/document/file', ArchiveFileController::class);
 Route::resource('/document/search', SearchController::class);
 
@@ -106,3 +128,4 @@ Route::resource('/archive/digital', DigitalArchiveController::class);
 // ======================================================================= costum global
 Route::get('/viewfile/{id}', [PengajuanController::class, 'lihat_pengajuan'])->name('view.file');
 Route::get('/file/download/{id}', [PengajuanController::class, 'download_pengajuan'])->name('download.file');
+Route::get('/metadata/download/{id}', [PengajuanController::class, 'download_metadata_pengajuan'])->name('download.metadata');

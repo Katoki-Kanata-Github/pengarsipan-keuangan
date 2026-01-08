@@ -14,7 +14,7 @@
                     <h3 class="text-lg font-semibold text-gray-700">Daftar Sub Kategori</h3>
 
                     <div class="flex gap-4">
-                        <a href="{{ route('subcategory.create_with_category', $category->id) }}"
+                        <a href="{{ route('subcategory.create', $category->id) }}"
                             class="inline-flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
                             <img src="https://img.icons8.com/?size=20&id=EkK2AS8KSyo0&format=png&color=ffffff"
                                 class="w-5" />
@@ -31,56 +31,58 @@
 
                     @php $no = 1; @endphp
                     @foreach ($subcategories as $subcategory)
-                        <div
-                            class="flex items-center justify-between p-5 transition duration-150 ease-in-out hover:bg-gray-50">
+                        @if ($subcategory->sub_category != null)
+                            <div
+                                class="flex items-center justify-between p-5 transition duration-150 ease-in-out hover:bg-gray-50">
 
-                            {{-- Link utama --}}
-                            <a href="{{ route('subcategory.show', $subcategory->id) }}"
-                                class="flex items-center gap-4 flex-1">
+                                {{-- Link utama --}}
+                                <a href="{{ route('subcategory.show', $subcategory->id) }}"
+                                    class="flex items-center gap-4 flex-1">
 
-                                <div
-                                    class="w-9 h-9 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 font-bold">
-                                    {{ $no++ }}
-                                </div>
+                                    <div
+                                        class="w-9 h-9 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 font-bold">
+                                        {{ $no++ }}
+                                    </div>
 
-                                <div class="space-y-1">
-                                    <p class="text-gray-900 font-semibold text-base">
-                                        {{ $subcategory->sub_category_name }}
-                                    </p>
+                                    <div class="space-y-1">
+                                        <p class="text-gray-900 font-semibold text-base">
+                                            {{ $subcategory->sub_category }}
+                                        </p>
 
-                                    {{-- <div class="flex items-center gap-4 text-sm text-gray-600">
+                                        {{-- <div class="flex items-center gap-4 text-sm text-gray-600">
                                         <span class="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-lg">
                                             <img src="https://img.icons8.com/?size=16&id=7880&format=png&color=4b5563"
                                                 class="w-4 opacity-70">
                                             {{ $category->category_code ?? '-' }}
                                         </span>
                                     </div> --}}
-                                </div>
-                            </a>
-
-                            {{-- Tombol Aksi --}}
-                            <div class="flex items-center gap-2 ml-4">
-                                <a href="{{ route('subcategory.edit', $subcategory->id) }}"
-                                    class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-lg p-2 shadow transition">
-                                    <img src="https://img.icons8.com/?size=24&id=88584&format=png&color=ffffff">
+                                    </div>
                                 </a>
 
-                                <form action="{{ route('subcategory.destroy', $subcategory->id) }}" method="POST"
-                                    onsubmit="return confirm('Yakin ingin menghapus kabinet ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                        class="flex items-center justify-center bg-red-500 hover:bg-red-600 rounded-lg p-2 shadow transition">
-                                        <img src="https://img.icons8.com/?size=24&id=43949&format=png&color=ffffff">
-                                    </button>
-                                </form>
+                                {{-- Tombol Aksi --}}
+                                <div class="flex items-center gap-2 ml-4">
+                                    <a href="{{ route('subcategory.edit', $subcategory->id) }}"
+                                        class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-lg p-2 shadow transition">
+                                        <img src="https://img.icons8.com/?size=24&id=88584&format=png&color=ffffff">
+                                    </a>
+
+                                    <form action="{{ route('subcategory.delete', $subcategory->id) }}" method="POST"
+                                        onsubmit="return confirm('Yakin ingin menghapus kabinet ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="flex items-center justify-center bg-red-500 hover:bg-red-600 rounded-lg p-2 shadow transition">
+                                            <img src="https://img.icons8.com/?size=24&id=43949&format=png&color=ffffff">
+                                        </button>
+                                    </form>
+                                </div>
+
                             </div>
 
-                        </div>
-
-                        {{-- Border antar item --}}
-                        @if (!$loop->last)
-                            <div class="border-b border-gray-200"></div>
+                            {{-- Border antar item --}}
+                            @if (!$loop->last)
+                                <div class="border-b border-gray-200"></div>
+                            @endif
                         @endif
                     @endforeach
                 </div>

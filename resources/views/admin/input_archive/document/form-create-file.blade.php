@@ -19,7 +19,7 @@
                     @csrf
 
                     {{-- id folder --}}
-                    <input type="hidden" name="document_folder_id" value="{{ $folders->id }}">
+                    <input type="hidden" name="folders_id" value="{{ $folders->id }}">
 
                     {{-- Nama File --}}
                     <div>
@@ -54,7 +54,7 @@
 
                     {{-- Tombol --}}
                     <div class="flex items-center justify-between pt-4">
-                        <a href="{{ route('folder.show', $folders->id) }}"
+                        <a href="{{ route('archive.list', $folders->id) }}"
                             class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition shadow-sm">
                             ← Kembali
                         </a>

@@ -8,12 +8,12 @@
     <div class="py-10 bg-gray-50">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow-md sm:rounded-xl p-8 border border-gray-200">
-                <form action="{{ route('subcategory.store') }}" method="POST" class="space-y-6">
+                <form action="{{ route('subcategory.store', $category->id) }}" method="POST" class="space-y-6">
                     @csrf
 
                     <input type="text" name="category_id" value="{{ $category->id }}" class="hidden">
 
-                    {{-- Nama Rak Arsip --}}
+                    {{-- Nama Sub Category --}}
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
                             Nama Sub Kategori
@@ -24,24 +24,24 @@
                     </div>
 
                     {{-- Kategori --}}
-                    <div>
+                    {{-- <div>
                         <label for="kode" class="block text-sm font-medium text-gray-700 mb-1">
                             kode Sub Kategori
                         </label>
                         <input type="text" name="kode" id="kode"
                             class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
                             placeholder="Masukkan keterangan" required>
-                    </div>
+                    </div> --}}
 
                     {{-- Keterangan --}}
-                    <div>
+                    {{-- <div>
                         <label for="Keterangan" class="block text-sm font-medium text-gray-700 mb-1">
                             Keterangan
                         </label>
                         <input type="text" name="Keterangan" id="Keterangan"
                             class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
                             placeholder="Masukkan keterangan" required>
-                    </div>
+                    </div> --}}
 
 
                     {{-- Tombol Aksi --}}

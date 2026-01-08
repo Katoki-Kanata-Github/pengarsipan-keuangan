@@ -9,7 +9,7 @@
     <div class="#">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <a href="{{ route('cabinet.show', $cabinet->id) }}"
-               class="inline-flex items-center gap-2 bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow-sm">
+                class="inline-flex items-center gap-2 bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow-sm">
                 ← Kembali
             </a>
         </div>
@@ -23,7 +23,7 @@
                 <div class="flex justify-between items-center">
                     <h3 class="text-lg font-semibold text-gray-700">Daftar Category</h3>
 
-                    <a href="{{ route('category.create_with_cabinet', $cabinet->id) }}"
+                    <a href="{{ route('category.create', $cabinet->id) }}"
                         class="inline-flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
                         <img src="https://img.icons8.com/?size=20&id=EkK2AS8KSyo0&format=png&color=ffffff"
                             class="w-5" />
@@ -43,13 +43,12 @@
                             class="flex items-center justify-between p-5 transition duration-150 ease-in-out hover:bg-gray-50">
 
                             {{-- Link utama --}}
-                            <a href="{{ route('cabinet.show', $category->id) }}" class="flex items-center gap-4 flex-1">
+                            <a href="#" class="flex items-center gap-4 flex-1">
 
                                 <div
                                     class="w-9 h-9 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 font-bold">
                                     {{ $no++ }}
                                 </div>
-
                                 <div class="space-y-1">
                                     <p class="text-gray-900 font-semibold text-base">
                                         {{ $category->category_name }}
@@ -72,7 +71,7 @@
                                     <img src="https://img.icons8.com/?size=24&id=88584&format=png&color=ffffff">
                                 </a>
 
-                                <form action="{{ route('category.destroy', $category->id) }}" method="POST"
+                                <form action="{{ route('category.delete', $category->id) }}" method="POST"
                                     onsubmit="return confirm('Yakin ingin menghapus kabinet ini?')">
                                     @csrf
                                     @method('DELETE')

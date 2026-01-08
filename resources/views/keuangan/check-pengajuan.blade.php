@@ -293,7 +293,7 @@
                                 <div class="flex-1">
                                     <p class="text-sm font-medium text-blue-800 mb-1">Informasi Tambahan (Opsional)</p>
                                     <p class="text-xs text-blue-700 mb-2">Metadata excel kelengkapan pengajuan ini</p>
-                                    <a href="{{ asset('storage/' . $pengajuan->path_file_status_kelengkapan) }}"
+                                    <a href="{{ route('download.metadata', $pengajuan->id) }}"
                                         class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -307,44 +307,7 @@
                             </div>
                         </div>
 
-                        {{-- Input Nomor Kuitansi Section --}}
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-                            <div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
-                                <div class="p-2 bg-indigo-100 rounded-lg">
-                                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 class="font-semibold text-lg text-gray-800">Nomor Kuitansi</h3>
-                                    <p class="text-xs text-gray-500 mt-0.5">Masukkan nomor kuitansi untuk pengajuan ini
-                                    </p>
-                                </div>
-                            </div>
 
-                            <div class="space-y-3">
-                                <input type="text" name="kuitansi" value="{{ $kuitansi ?? '' }}" required
-                                    class="w-full border-2 border-gray-300 rounded-lg p-3 text-gray-800 font-medium placeholder-gray-400
-            focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 focus:outline-none
-            transition-all duration-200 bg-white shadow-sm hover:border-indigo-300"
-                                    placeholder="Contoh: KWT/2024/001">
-
-                                <div
-                                    class="flex items-start gap-2 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
-                                    <svg class="w-4 h-4 text-indigo-600 mt-0.5 flex-shrink-0" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    <p class="text-xs text-indigo-800">
-                                        Nomor kuitansi bersifat opsional. Pastikan format nomor sesuai dengan standar
-                                        institusi Anda.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
 
                         {{-- Catatan Pengembalian --}}
                         <div class="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-5 mb-6">

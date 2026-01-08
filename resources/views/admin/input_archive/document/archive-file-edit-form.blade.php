@@ -28,7 +28,7 @@
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
                             Nama File Arsip
                         </label>
-                        <input type="text" name="name" id="name" value="{{ $file->name_file }}"
+                        <input type="text" name="name" id="name" value="{{ $file->file_name }}"
                             class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
                             placeholder="Contoh: Dokumen Pajak 2024" required>
                     </div>
@@ -39,16 +39,16 @@
                             File Arsip
                         </label>
 
-                        @if ($file->path_file)
+                        @if ($file->file_path)
                             {{-- Jika file sudah ada --}}
                             <div class="p-4 border rounded-lg bg-green-50 border-green-200 mb-3">
                                 <p class="text-sm text-green-700 font-medium flex items-center gap-2">
                                     <img src="https://img.icons8.com/?size=20&id=102550&format=png&color=2e7d32">
-                                    File saat ini: <span class="underline">{{ basename($file->path_file) }}</span>
+                                    File saat ini: <span class="underline">{{ basename($file->file_path) }}</span>
                                 </p>
 
                                 <div class="mt-2 flex gap-3">
-                                    <a href="{{ asset('storage/' . $file->path_file) }}"
+                                    <a href="{{ route('archive.looks', $file->id) }}" target="blank"
                                         class="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
                                         Lihat File
                                     </a>
@@ -89,14 +89,14 @@
                         <label for="keterangan" class="block text-sm font-medium text-gray-700 mb-1">
                             Keterangan
                         </label>
-                        <input type="text" name="keterangan" id="keterangan" value="{{ $file->keterangan }}"
+                        <input type="text" name="keterangan" id="keterangan" value="{{ $file->description }}"
                             class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
                             placeholder="Contoh: Arsip laporan keuangan" required>
                     </div>
 
                     {{-- Tombol --}}
                     <div class="flex items-center justify-between pt-4">
-                        <a href="{{ route('folder.show', $file->document_folder_id) }}"
+                        <a href="{{ route('archive.list', $file->folder_id) }}"
                             class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition shadow-sm">
                             ← Kembali
                         </a>

@@ -3,110 +3,418 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ArchiveFile;
 use App\Models\Cabinet;
 use App\Models\Category;
-use App\Models\SubCategory;
-use App\Models\Year;
+use App\Models\DocumentFolder;
+use Dom\Document;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
+    // show category sudah
+    // create category sudah
+    // store category sudah
+    // update category sudah
+    // edit category sudah
+    // delete category sudah
     /**
      * Display a listing of the resource.
      */
-    public function index_list($id)
+    public function index()
+    {
+        //
+    }
+
+    public function all_list($id) // list category bagian edit kategori
     {
         $cabinet = Cabinet::findOrFail($id);
-        $categories = Category::where('cabinet_id', $id)->get();
+        $result = Category::where('cabinet_id', $cabinet->id)->get(); // ambil category berdasarkan cabinet
+
+        $categories = collect();
+        $temp  = [];
+
+        // ambil kategori yang sama dilewati
+        foreach ($result as $category) {
+            if (in_array($category->category_name, $temp)) {
+                continue;
+            }
+
+            $temp[] = $category->category_name;
+            $categories->push($category);
+        }
+
         return view('admin.input_archive.category.category_list', compact('categories', 'cabinet'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-        // $categories = Category::all();
-        // return view('admin.archive.category-create', compact('categories'));
-    }
-
-    public function create_with_cabinet($id)
+    public function create_category_form_cabinet($id) // id cabinet
     {
         $cabinet = Cabinet::findOrFail($id);
         return view('admin.input_archive.category.category-create', compact('cabinet'));
     }
 
+    public function create_sub_category($id) // id category
+    {
+        $category = Category::findOrFail($id);
+        return view('admin.input_archive.sub_category.sub_category_create', compact('category'));
+    }
+
+    public function create_year($id) // id category bisa dari sub kategori atau dari kategori langsung
+    {
+        $category = Category::findOrFail($id);
+        return view('admin.input_archive.year.year_create', compact('category'));
+    }
+
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request) // create category // belum tambahkan path icon
     {
+        $request->validate([
+            'name' => 'required|string',
+            'deskripsi' => 'nullable|string',
+            'url' => 'nullable|string',
+        ]);
+
         Category::create([
             'cabinet_id' => $request->cabinet_id,
             'category_name' => $request->name,
-            'category_code' => $request->name,
             'description' => $request->deskripsi,
             'url_icon' => $request->url,
         ]);
 
-        return redirect()->route('cabinet.show', ['cabinet' => $request->cabinet_id])->with('success', 'Berhasil Menambahkan Kategory');
+        return redirect()->route('cabinet.show', ['cabinet' => $request->cabinet_id])->with('success', 'Berhasil Membuat Category');
+    }
+
+    public function add_subcategory(Request $request, $id)
+    {
+        $category = Category::findOrFail($id); // category saat ini
+        $request->validate([
+            'name' => 'required|string',
+        ]);
+
+        if (isset($category->sub_category)) { // jika categori saat ini sudah memiliki sub kategori maka buat yang baru
+            Category::create([
+                'cabinet_id' => $category->cabinet_id,
+                'category_name' => $category->category_name,
+                'sub_category' => $request->name,
+            ]);
+        } else {
+            $category->update([ // jika belum punya update category saat ini
+                'sub_category' => $request->name,
+            ]);
+        }
+
+        return redirect()->route('category.show', ['category' => $category->id])->with('success', 'Berhasil Menambahkan Sub Category');
+    }
+
+    public function add_year(Request $request, $id)
+    {
+        $category = Category::findOrFail($id); // ambil categori saat ini bisa dari kategori langsung atau dari sub kateogori
+        $request->validate([
+            'year' => 'required|string',
+        ]);
+
+        if (isset($category->year)) { // jika kategori saat ini sudah punya year maka buat yang baru
+            Category::create([
+                'cabinet_id' => $category->cabinet_id,
+                'category_name' => $category->category_name,
+                'sub_category' => $category->sub_category,
+                'year' => $request->year,
+            ]);
+        } else {
+            $category->update([ // jika belum update categori saat ini
+                'year' => $request->year,
+            ]);
+        }
+        return redirect()->route('category.show', ['category' => $category->id])->with('success', 'Berhasil Menambahkan Year');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id) // id kategori saat ini
     {
-        $category = Category::findOrFail($id);
+        $category = Category::findOrFail($id); // category yang dipilih
+        if (isset($category->sub_category)) {
+            $result = Category::where('category_name', $category->category_name)->get(); // ambil sub category dari category
 
-        $years = Year::where('category_id', $category->id)->get();
-        $subcategories = SubCategory::where('category_id', $category->id)->get();
-        if ($subcategories->count() > 0) {
+            $subcategories = collect();
+            $temp  = [];
+
+            // ambil sub kategori dari category dan yang sama dilewati
+            foreach ($result as $category) {
+                if (in_array($category->sub_category, $temp)) { // cek jika sub Kategori sudah ada maka lewati
+                    continue;
+                }
+
+                $temp[] = $category->sub_category; // simpan sub kategori dalam memori
+                $subcategories->push($category);
+            }
             return view('admin.input_archive.sub_category.sub_category', compact('subcategories', 'category'));
         } else {
+            $years = Category::where('category_name', $category->category_name)->get(); // cari tahun berdasarkan categori
             return view('admin.input_archive.year.year', compact('years', 'category'));
         }
     }
 
+    public function sub_category_show($id) // id categori dari sub kategori saat ini
+    {
+        $category = Category::findOrFail($id); // ambil category dari sub category saat ini
+        $years = Category::where('sub_category', $category->sub_category)->get();
+        return view('admin.input_archive.year.year', compact('years', 'category'));
+    }
 
+    public function year_show($id) // id categori dari year saat ini
+    {
+        $category = Category::findOrFail($id); // ambil categori saat ini dari year
+        $result = DocumentFolder::with('category')
+            ->where('category_id', $category->id)
+            ->get(); // ambil rak berdasarkan category id
+
+        $racks = collect();
+        $temp  = [];
+
+        foreach ($result as $rak) {
+            if (in_array($rak->rack_name, $temp)) { // cek jika rak sudah ada maka lewati
+                continue;
+            }
+
+            $temp[] = $rak->rack_name; // tambahkan rak dalam temp
+            $racks->push($rak);
+        }
+        return view('admin.input_archive.rack.archive-rack', compact('racks', 'category'));
+    }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        $category = Category::findOrFail($id);
-        return view('admin.input_archive.category.category-edit', compact('category'));
-    }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update_year(Request $request, string $id)
     {
         $request->validate([
-            'name' => 'required|string',
-            'deskripsi' => 'required|string',
+            'year' => 'required|digits:4|integer|min:1900|max:' . (date('Y') + 10)
+        ]);
+
+        $year = Category::findOrFail($id);
+        $cabinetId = $year->cabinet_id;
+
+        // Cek apakah kombinasi baru sudah ada
+        $exists = Category::where('cabinet_id', $year->cabinet_id)
+            ->where('category_name', $year->category_name)
+            ->where('sub_category', $year->sub_category)
+            ->where('year', $request->year)
+            ->where('id', '!=', $id)
+            ->exists();
+
+        if ($exists) {
+            return redirect()->route('cabinet.show', ['cabinet' => $cabinetId])
+                ->with('error', 'Year dengan kombinasi ini sudah ada');
+        }
+
+        // Update hanya year ini saja (tidak mass update)
+        $year->update(['year' => $request->year]);
+
+        return redirect()->route('cabinet.show', ['cabinet' => $cabinetId])
+            ->with('success', 'Berhasil edit tahun');
+    }
+
+    public function update_subcategory(Request $request, string $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255'
+        ]);
+
+        $subcategory = Category::findOrFail($id);
+        $cabinetId = $subcategory->cabinet_id;
+        $oldSubCategory = $subcategory->sub_category;
+        $newSubCategory = $request->name;
+
+        // Cek apakah sub_category baru sudah ada di category yang sama
+        $exists = Category::where('cabinet_id', $subcategory->cabinet_id)
+            ->where('category_name', $subcategory->category_name)
+            ->where('sub_category', $newSubCategory)
+            ->exists();
+
+        if ($exists) {
+            return redirect()->route('cabinet.show', ['cabinet' => $cabinetId])
+                ->with('error', 'Sub Category dengan nama ini sudah ada di Category yang sama');
+        }
+
+        // Update semua records dengan sub_category yang sama di category & cabinet yang sama
+        Category::where('cabinet_id', $subcategory->cabinet_id)
+            ->where('category_name', $subcategory->category_name)
+            ->where('sub_category', $oldSubCategory)
+            ->update(['sub_category' => $newSubCategory]);
+
+        return redirect()->route('cabinet.show', ['cabinet' => $cabinetId])
+            ->with('success', 'Berhasil edit Sub Category');
+    }
+
+    public function update_category(Request $request, string $id)
+    {
+        $request->validate([
+            'category_name' => 'required|string|max:255'
         ]);
 
         $category = Category::findOrFail($id);
-        $category->update([
-            'category_name' => $request->name,
-            'deskripsi' => $request->deskripsi,
-            'url_icon' => $request->url,
-        ]);
+        $cabinetId = $category->cabinet_id;
+        $oldCategoryName = $category->category_name;
+        $newCategoryName = $request->category_name;
 
-        return redirect()->route('cabinet.show', ['cabinet' => $category->cabinet_id])->with('success', 'Berhasil Mengupdate Kategory');
+        // Cek apakah category_name baru sudah ada di cabinet yang sama
+        $exists = Category::where('cabinet_id', $category->cabinet_id)
+            ->where('category_name', $newCategoryName)
+            ->exists();
+
+        if ($exists) {
+            return redirect()->route('cabinet.show', ['cabinet' => $cabinetId])
+                ->with('error', 'Category dengan nama ini sudah ada di Cabinet yang sama');
+        }
+
+        // Update semua records dengan category_name yang sama di cabinet yang sama
+        // Termasuk yang punya sub_category dan year berbeda
+        Category::where('cabinet_id', $category->cabinet_id)
+            ->where('category_name', $oldCategoryName)
+            ->update(['category_name' => $newCategoryName]);
+
+        // Update juga di field sub_category yang mereferensi category_name ini
+        Category::where('cabinet_id', $category->cabinet_id)
+            ->where('sub_category', $oldCategoryName)
+            ->update(['sub_category' => $newCategoryName]);
+
+        return redirect()->route('cabinet.show', ['cabinet' => $cabinetId])
+            ->with('success', 'Berhasil edit Category');
+    }
+
+    public function edit_year($id)
+    {
+        $year = Category::findOrFail($id);
+        return view('admin.input_archive.year.year_edit', compact('year'));
+    }
+
+    public function edit_subcategory($id)
+    {
+        $subcategory = Category::findOrFail($id);
+        return view('admin.input_archive.sub_category.sub_category_edit', compact('subcategory'));
+    }
+
+    public function edit_category($id)
+    {
+        $category = Category::findOrFail($id);
+        $cabinet = Cabinet::findOrFail($category->cabinet_id);
+        return view('admin.input_archive.category.category-edit', compact('category', 'cabinet'));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    // Helper method untuk delete files
+    private function deleteRelatedFiles($categoryIds)
+    {
+        $folders = DocumentFolder::whereIn('category_id', $categoryIds)->pluck('id');
+
+        if ($folders->isEmpty()) return;
+
+        $files = ArchiveFile::whereIn('folder_id', $folders)->get();
+
+        foreach ($files as $file) {
+            if (Storage::disk('private')->exists($file->file_path)) {
+                Storage::disk('private')->delete($file->file_path);
+            }
+        }
+    }
+
+    public function destroy_year(string $id)
+    {
+        $year = Category::findOrFail($id);
+        $cabinetId = $year->cabinet_id;
+
+        // Cek berapa banyak year dengan sub_category yang sama
+        $countSameSubCategory = Category::where('cabinet_id', $year->cabinet_id)
+            ->where('sub_category', $year->sub_category)
+            ->where('category_name', $year->category_name)
+            ->count();
+
+        // Jika cuma 1, set year jadi null aja, jangan dihapus
+        if ($countSameSubCategory == 1) {
+            $this->deleteRelatedFiles([$year->id]);
+            $year->update(['year' => null]);
+            $message = 'Berhasil menghapus Year (diset null)';
+        } else {
+            // Kalau lebih dari 1, baru hapus
+            $this->deleteRelatedFiles([$year->id]);
+            $year->delete();
+            $message = 'Berhasil menghapus Year';
+        }
+
+        return redirect()->route('cabinet.show', ['cabinet' => $cabinetId])
+            ->with('success', $message);
+    }
+
+    public function destroy_subcategory(string $id)
+    {
+        $subcategory = Category::findOrFail($id);
+        $cabinetId = $subcategory->cabinet_id;
+
+        // Cek berapa banyak sub_category dengan category_name yang sama
+        $countSameCategory = Category::where('cabinet_id', $subcategory->cabinet_id)
+            ->where('category_name', $subcategory->category_name)
+            ->whereNotNull('sub_category')
+            ->distinct('sub_category')
+            ->count('sub_category');
+
+        // Ambil semua years dengan sub_category yang sama
+        $years = Category::where('cabinet_id', $subcategory->cabinet_id)
+            ->where('sub_category', $subcategory->sub_category)
+            ->where('category_name', $subcategory->category_name)
+            ->get();
+
+        $this->deleteRelatedFiles($years->pluck('id')->toArray());
+
+        // Jika cuma 1 sub_category tersisa, set null aja
+        if ($countSameCategory == 1) {
+            Category::where('cabinet_id', $subcategory->cabinet_id)
+                ->where('sub_category', $subcategory->sub_category)
+                ->update(['sub_category' => null]);
+            $message = 'Berhasil menghapus Sub Category (diset null)';
+        } else {
+            // Kalau lebih dari 1, hapus semua years dengan sub_category ini
+            Category::where('cabinet_id', $subcategory->cabinet_id)
+                ->where('sub_category', $subcategory->sub_category)
+                ->delete();
+            $message = 'Berhasil menghapus Sub Category';
+        }
+
+        return redirect()->route('cabinet.show', ['cabinet' => $cabinetId])
+            ->with('success', $message);
+    }
+
+    public function destroy_category(string $id)
     {
         $category = Category::findOrFail($id);
-        $cabinet_id = $category->cabinet_id;
-        $category->delete();
-        return redirect()->route('cabinet.show', ['cabinet' => $cabinet_id])->with('success', 'Berhasil Menghapus Kategory');
+        $cabinetId = $category->cabinet_id;
+
+        // Ambil semua records dengan category_name yang sama
+        $categories = Category::where('cabinet_id', $category->cabinet_id)
+            ->where('category_name', $category->category_name)
+            ->get();
+
+        $this->deleteRelatedFiles($categories->pluck('id')->toArray());
+
+        // Hapus semua category beserta sub_category dan year-nya
+        Category::where('cabinet_id', $category->cabinet_id)
+            ->where('category_name', $category->category_name)
+            ->delete();
+
+        return redirect()->route('cabinet.show', ['cabinet' => $cabinetId])
+            ->with('success', 'Berhasil menghapus Category');
     }
 }

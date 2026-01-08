@@ -12,7 +12,7 @@
                 {{-- Tombol Tambah --}}
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-semibold text-gray-700">Kelola Folder Arsip</h3>
-                    <a href="{{ route('folder.create_with_rack', $raks->id) }}"
+                    <a href="{{ route('folder.create', $rack->id) }}"
                         class="inline-flex items-center gap-2 bg-green-500 text-white font-medium px-4 py-2 rounded-lg hover:bg-green-600 transition">
                         <img src="https://img.icons8.com/?size=24&id=48427&format=png&color=ffffff" alt="plus">
                         Tambah Folder Arsip
@@ -25,44 +25,46 @@
                 @if ($folders->count() > 0)
                     <div class="divide-y divide-gray-200 rounded-lg border border-gray-100">
                         @foreach ($folders as $folder)
-                            <div
-                                class="flex items-center justify-between p-4 hover:bg-gray-50 transition duration-150 ease-in-out group rounded-md">
+                            @if ($folder->folder_name != null)
+                                <div
+                                    class="flex items-center justify-between p-4 hover:bg-gray-50 transition duration-150 ease-in-out group rounded-md">
 
-                                {{-- Bagian Klik Utama --}}
-                                <a href="{{ route('folder.show', $folder->id) }}"
-                                    class="flex items-center gap-4 flex-1 group-hover:text-indigo-600">
-                                    <div
-                                        class="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 font-semibold">
-                                        {{ $no++ }}
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-800 font-medium">{{ $folder->folder_name }}</p>
-                                        <p class="text-sm text-gray-500">Kode folder: {{ $folder->kode_folder }}</p>
-                                    </div>
-                                </a>
-
-                                {{-- Tombol Aksi --}}
-                                <div class="flex items-center gap-2 ml-4">
-                                    <a href="{{ route('folder.edit', $folder->id) }}"
-                                        class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-md p-2 transition"
-                                        title="Edit">
-                                        <img src="https://img.icons8.com/?size=24&id=88584&format=png&color=ffffff"
-                                            alt="edit">
+                                    {{-- Bagian Klik Utama --}}
+                                    <a href="{{ route('archive.list', $folder->id) }}"
+                                        class="flex items-center gap-4 flex-1 group-hover:text-indigo-600">
+                                        <div
+                                            class="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 font-semibold">
+                                            {{ $no++ }}
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-800 font-medium">{{ $folder->folder_name }}</p>
+                                            <p class="text-sm text-gray-500">Kode folder: {{ $folder->kode_folder }}</p>
+                                        </div>
                                     </a>
 
-                                    <form action="{{ route('folder.destroy', $folder->id) }}" method="POST"
-                                        onsubmit="return confirm('Yakin ingin menghapus folder ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="flex items-center justify-center bg-red-500 hover:bg-red-600 rounded-md p-2 transition"
-                                            title="Hapus">
-                                            <img src="https://img.icons8.com/?size=24&id=43949&format=png&color=ffffff"
-                                                alt="delete">
-                                        </button>
-                                    </form>
+                                    {{-- Tombol Aksi --}}
+                                    <div class="flex items-center gap-2 ml-4">
+                                        <a href="{{ route('folder.edit', $folder->id) }}"
+                                            class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-md p-2 transition"
+                                            title="Edit">
+                                            <img src="https://img.icons8.com/?size=24&id=88584&format=png&color=ffffff"
+                                                alt="edit">
+                                        </a>
+
+                                        <form action="{{ route('folder.delete', $folder->id) }}" method="POST"
+                                            onsubmit="return confirm('Yakin ingin menghapus folder ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="flex items-center justify-center bg-red-500 hover:bg-red-600 rounded-md p-2 transition"
+                                                title="Hapus">
+                                                <img src="https://img.icons8.com/?size=24&id=43949&format=png&color=ffffff"
+                                                    alt="delete">
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
                         @endforeach
                     </div>
                 @else
@@ -76,7 +78,7 @@
 
             {{-- Tombol Kembali --}}
             <div class="mt-6">
-                <a href="{{ route('year.show', $raks->year_id) }}"
+                <a href="{{ route('year.show', $rack->category_id) }}"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 rounded-lg font-medium transition">
                     {{-- <img src="https://img.icons8.com/?size=20&id=118774&format=png&color=4b5563" alt="back"> --}}
                     Kembali

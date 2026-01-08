@@ -26,7 +26,7 @@
 
                     {{-- Tombol Aksi --}}
                     <div class="flex items-center justify-between pt-4">
-                        <a href="{{ route('category.show', $year->category_id) }}"
+                        <a href="{{ route('cabinet.show', $year->cabinet_id) }}"
                             class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition">
                             ← Kembali
                         </a>

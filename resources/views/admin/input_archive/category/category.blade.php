@@ -9,12 +9,12 @@
     <div class="#">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <a href="{{ route('admin.archive') }}"
-               class="inline-flex items-center gap-2 bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow-sm">
+                class="inline-flex items-center gap-2 bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow-sm">
                 ← Kembali
             </a>
         </div>
     </div>
-    
+
     <div class="py-6 bg-gray-100 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 pb-12">
 
@@ -30,14 +30,14 @@
                         </p>
                     </div>
 
-                    <a href="{{ route('category.list_with_cabinet', $cabinet->id) }}"
-                       class="inline-flex items-center gap-2 px-5 py-2.5
+                    <a href="{{ route('category.list', $cabinet->id) }}"
+                        class="inline-flex items-center gap-2 px-5 py-2.5
                               bg-gradient-to-r from-green-500 to-emerald-500
                               hover:from-green-600 hover:to-emerald-600
                               text-white font-semibold rounded-xl
                               shadow-md transition">
                         <img src="https://img.icons8.com/?size=20&id=EkK2AS8KSyo0&format=png&color=ffffff"
-                             class="w-5" />
+                            class="w-5" />
                         Edit Kategori
                     </a>
                 </div>
@@ -49,19 +49,21 @@
 
                     @foreach ($categories as $category)
                         <a href="{{ route('category.show', $category->id) }}"
-                           class="group relative overflow-hidden rounded-2xl
+                            class="group relative overflow-hidden rounded-2xl
                                   bg-gradient-to-br from-indigo-500 to-blue-500
                                   p-6 text-white shadow-lg
                                   transition-all duration-300
                                   hover:-translate-y-1 hover:shadow-xl">
 
                             {{-- HOVER GLOW --}}
-                            <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition"></div>
+                            <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition">
+                            </div>
 
                             <div class="relative flex flex-col items-center justify-center gap-4">
-                                
+
                                 {{-- ICON --}}
-                                <div class="w-16 h-16 flex items-center justify-center
+                                <div
+                                    class="w-16 h-16 flex items-center justify-center
                                             bg-white/20 rounded-2xl
                                             group-hover:scale-110 transition">
                                     @if ($category->url_icon)

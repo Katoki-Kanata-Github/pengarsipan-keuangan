@@ -19,14 +19,13 @@
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
                             Nama Sub Kategori
                         </label>
-                        <input type="text" name="name" id="name"
-                            value="{{ $subcategory->sub_category_name }}"
+                        <input type="text" name="name" id="name" value="{{ $subcategory->sub_category }}"
                             class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
                             placeholder="Masukkan nama rak arsip" required>
                     </div>
 
                     {{-- Kategori --}}
-                    <div>
+                    {{-- <div>
                         <label for="kode" class="block text-sm font-medium text-gray-700 mb-1">
                             kode Sub Kategori
                         </label>
@@ -37,19 +36,19 @@
                     </div>
 
                     {{-- Keterangan --}}
-                    <div>
+                    {{-- <div>
                         <label for="Keterangan" class="block text-sm font-medium text-gray-700 mb-1">
                             Keterangan
                         </label>
                         <input type="text" name="Keterangan" id="Keterangan" value="{{ $subcategory->keterangan }}"
                             class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
                             placeholder="Masukkan keterangan" required>
-                    </div>
+                    </div>  --}}
 
 
                     {{-- Tombol Aksi --}}
                     <div class="flex items-center justify-between pt-4">
-                        <a href="{{ route('category.show', $subcategory->category_id) }}"
+                        <a href="{{ route('cabinet.show', $subcategory->cabinet_id) }}"
                             class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition">
                             ← Kembali
                         </a>

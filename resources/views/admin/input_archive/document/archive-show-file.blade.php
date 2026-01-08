@@ -19,7 +19,7 @@
                 <div class="mb-6">
                     <p class="text-sm font-medium text-gray-500">Nama Arsip</p>
                     <p class="text-lg font-semibold text-gray-800 mt-1">
-                        {{ $archives->name_file }}
+                        {{ $archives->file_name }}
                     </p>
                 </div>
 
@@ -27,13 +27,13 @@
                 <div class="mb-6">
                     <p class="text-sm font-medium text-gray-500">File Arsip</p>
 
-                    @if ($archives->path_file)
+                    @if ($archives->file_path)
                         File saat ini: <span
-                            class="underline text-green-700">{{ basename($archives->path_file) }}</span>
+                            class="underline text-green-700">{{ basename($archives->file_path) }}</span>
                     @else
                         File saat ini: <span class="underline text-red-700">tidak tersedia</span>
                     @endif
-                    @if ($archives->path_file)
+                    @if ($archives->file_path)
                         <div class="mt-2 flex items-center gap-3">
 
                             {{-- Badge File Exists --}}
@@ -46,7 +46,7 @@
 
 
                             {{-- Lihat  --}}
-                            <a href="{{ asset('storage/' . $archives->path_file) }}" target="_blank"
+                            <a href="{{ route('archive.looks', $archives->file_path) }}" target="_blank"
                                 class="inline-flex items-center gap-1 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition">
                                 <img src="https://img.icons8.com/?size=18&id=82756&format=png&color=ffffff"
                                     alt="">
@@ -54,7 +54,7 @@
                             </a>
 
                             {{-- Download {{ route('archive.download', $archives->id) }} --}}
-                            <a href="{{ route('archive.download', $archives->id) }}"
+                            <a href="{{ route('file.download.archive', $archives->id) }}"
                                 class="inline-flex items-center gap-1 px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition">
                                 <img src="https://img.icons8.com/?size=18&id=67967&format=png&color=ffffff"
                                     alt="">
@@ -112,7 +112,7 @@
                 <div class="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
 
                     {{-- Tombol Kembali --}}
-                    <a href="{{ route('folder.show', $archives->document_folder_id) }}"
+                    <a href="{{ route('archive.list', $archives->folder_id) }}"
                         class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition shadow-sm">
                         {{-- <img src="https://img.icons8.com/?size=22&id=11596&format=png&color=4b5563" class="w-5" /> --}}
                         Kembali

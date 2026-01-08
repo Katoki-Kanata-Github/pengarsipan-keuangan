@@ -8,7 +8,7 @@
     <div class="py-10 bg-gray-50">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow-md sm:rounded-xl p-8 border border-gray-200">
-                <form action="{{ route('year.store') }}" method="POST" class="space-y-6">
+                <form action="{{ route('year.store', $category->id) }}" method="POST" class="space-y-6">
                     @csrf
 
                     <input type="text" name="category_id" value="{{ $category->id }}" class="hidden">
@@ -20,7 +20,7 @@
                         </label>
                         <input type="text" name="year" id="year"
                             class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
-                            placeholder="Masukkan nama rak arsip" required>
+                            placeholder="Masukkan Tahun" required>
                     </div>
 
                     {{-- Tombol Aksi --}}

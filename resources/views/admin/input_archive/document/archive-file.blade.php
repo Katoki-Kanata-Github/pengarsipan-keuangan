@@ -11,7 +11,7 @@
                 {{-- Tombol Tambah --}}
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-semibold text-gray-700">Kelola File Arsip</h3>
-                    <a href="{{ route('file.create_with_folder', $folders->id) }}"
+                    <a href="{{ route('file.create_with_folder', $folder->id) }}"
                         class="inline-flex items-center gap-2 bg-green-500 text-white font-medium px-4 py-2 rounded-lg hover:bg-green-600 transition">
                         <img src="https://img.icons8.com/?size=24&id=48427&format=png&color=ffffff" alt="plus">
                         Tambah File Arsip
@@ -21,39 +21,39 @@
                 {{-- Daftar Rak --}}
                 @php $no = 1; @endphp
 
-                @if ($files->count() > 0)
+                @if ($archives->count() > 0)
                     <div class="divide-y divide-gray-200 rounded-lg border border-gray-100">
-                        @foreach ($files as $file)
+                        @foreach ($archives as $archive)
                             <div
                                 class="flex items-center justify-between p-4 hover:bg-gray-50 transition duration-150 ease-in-out group rounded-md">
 
                                 {{-- Bagian Klik Utama --}}
-                                <a href="{{ route('file.show', $file->id) }}"
+                                <a href="{{ route('file.show', $archive->id) }}"
                                     class="flex items-center gap-4 flex-1 group-hover:text-indigo-600">
                                     <div
                                         class="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 font-semibold">
                                         {{ $no++ }}
                                     </div>
                                     <div>
-                                        <p class="text-gray-800 font-medium">{{ $file->name_file }}</p>
-                                        @if ($file->path_file == null)
-                                            <p class="text-sm text-red-500 font-semibold">Belum ada file</p>
+                                        <p class="text-gray-800 font-medium">{{ $archive->file_name }}</p>
+                                        @if ($archive->file_path == null)
+                                            <p class="text-sm text-red-500 font-semibold">Belum ada archive</p>
                                         @else
-                                            <p class="text-sm text-green-600 font-semibold">File tersedia</p>
+                                            <p class="text-sm text-green-600 font-semibold">archive tersedia</p>
                                         @endif
                                     </div>
                                 </a>
 
                                 {{-- Tombol Aksi --}}
                                 <div class="flex items-center gap-2 ml-4">
-                                    <a href="{{ route('file.edit', $file->id) }}"
+                                    <a href="{{ route('file.edit', $archive->id) }}"
                                         class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-md p-2 transition"
                                         title="Edit">
                                         <img src="https://img.icons8.com/?size=24&id=88584&format=png&color=ffffff"
                                             alt="edit">
                                     </a>
 
-                                    <form action="{{ route('file.destroy', $file->id) }}" method="POST"
+                                    <form action="{{ route('file.destroy', $archive->id) }}" method="POST"
                                         onsubmit="return confirm('Yakin ingin menghapus rak ini?')">
                                         @csrf
                                         @method('DELETE')
@@ -79,7 +79,7 @@
 
             {{-- Tombol Kembali --}}
             <div class="mt-6">
-                <a href="{{ route('rak.show', $folders->document_rack_id) }}"
+                <a href="{{ route('rack.show', $folder->id) }}"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 rounded-lg font-medium transition">
                     {{-- <img src="https://img.icons8.com/?size=20&id=118774&format=png&color=4b5563" alt="back"> --}}
                     Kembali

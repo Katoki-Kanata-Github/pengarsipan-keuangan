@@ -12,7 +12,7 @@
                     @method('PUT')
                     @csrf
 
-                    {{-- <input type="text" name="document_rack_id" id="" value="{{ $raks->id }}"
+                    {{-- <input type="text" name="document_rack_id" id="" value="{{ $rack->id }}"
                         class="hidden"> --}}
 
                     {{-- Nama Rak Arsip --}}
@@ -24,28 +24,28 @@
                             class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
                             placeholder="Masukkan nama folder arsip" required>
                     </div>
-                    <div>
+                    {{-- <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
                             Kode Folder Arsip
                         </label>
                         <input type="text" name="kode_folder" id="name" value="{{ $folder->kode_folder }}"
                             class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
                             placeholder="Masukkan kode folder arsip" required>
-                    </div>
+                    </div> --}}
 
                     {{-- Keterangan --}}
                     <div>
                         <label for="keterangan" class="block text-sm font-medium text-gray-700 mb-1">
                             Deskripsi
                         </label>
-                        <input type="text" name="deskripsi" id="keterangan" value="{{ $folder->deskripsi }}"
+                        <input type="text" name="deskripsi" id="keterangan" value="{{ $folder->description }}"
                             class="w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
                             placeholder="Masukkan deskripsi" required>
                     </div>
 
                     {{-- Tombol Aksi --}}
                     <div class="flex items-center justify-between pt-4">
-                        <a href="{{ route('rak.show', $folder->document_rack_id) }}"
+                        <a href=""
                             class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition">
                             ← Kembali
                         </a>

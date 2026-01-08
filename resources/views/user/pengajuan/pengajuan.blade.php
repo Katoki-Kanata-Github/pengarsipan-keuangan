@@ -148,11 +148,14 @@
                                         required>
                                         <option value="" selected disabled class="text-gray-400">Pilih tujuan
                                             bendahara...</option>
-                                        <option value="IP KKP" class="text-gray-800">UP KKP</option>
-                                        <option value="UP RM" class="text-gray-800">UP RM</option>
+                                        @foreach ($users as $user)
+                                            <option value="{{ $user->sub_role }}" class="text-gray-800">
+                                                {{ $user->sub_role }}</option>
+                                        @endforeach
+                                        {{-- <option value="UP RM" class="text-gray-800">UP RM</option>
                                         <option value="UP TUP" class="text-gray-800">UP TUP</option>
-                                        <option value="SVM" class="text-gray-800">SVM</option>
-                                        <option value="PNBP" class="text-gray-800">PNBP</option>
+                                        <option value="SPM" class="text-gray-800">SPM</option>
+                                        <option value="PNBP" class="text-gray-800">PNBP</option> --}}
                                         {{-- Tambahkan option bendahara lainnya di sini --}}
                                     </select>
 

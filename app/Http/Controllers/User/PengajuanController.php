@@ -5,7 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\DigitalArchive;
 use App\Models\Pengajuan;
-use App\Models\Role;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +22,8 @@ class PengajuanController extends Controller
      */
     public function index()
     {
-        return view('user.pengajuan.pengajuan');
+        $users = User::where('role', 'Bendahara')->get();
+        return view('user.pengajuan.pengajuan', compact('users'));
     }
 
     public function update_check(Request $request, $id)
@@ -64,7 +65,7 @@ class PengajuanController extends Controller
             $index++;
         }
         $worksheet->setCellValue("B41", $request->catatan);
-        $worksheet->getCell('B4')->setValue("Nomor : {$request->kuitansi}");
+
         $writer = new Xlsx($spreadsheet);
         $writer->save($filePathMetadata);
 
@@ -247,6 +248,17 @@ class PengajuanController extends Controller
         return response()->download($path, $fileName);
     }
 
+    public function download_metadata_pengajuan($id)
+    {
+        $file_metadata = Pengajuan::findOrFail($id);
+
+        $path = Storage::disk('private')->path($file_metadata->path_file_status_kelengkapan);
+
+        $fileName = basename($file_metadata->path_file_status_kelengkapan);
+
+        return response()->download($path, $fileName);
+    }
+
     public function lihat_pengajuan($id) // jika sudah diarsipkan
     {
         $file_pengajuan = Pengajuan::findOrFail($id);
@@ -261,6 +273,14 @@ class PengajuanController extends Controller
     public function final_verification(Request $request, $id)
     {
         $pengajuan = Pengajuan::with('user')->findOrFail($id);
+        if (Storage::disk('private')->exists($pengajuan->path_file_status_kelengkapan)) {
+            $filePathMetadata = Storage::disk('private')->path($pengajuan->path_file_status_kelengkapan);
+            $spreadsheet = IOFactory::load($filePathMetadata);
+            $worksheet = $spreadsheet->getActiveSheet();
+        }
+        $worksheet->getCell('B4')->setValue("Nomor : {$request->kuitansi}");
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($filePathMetadata);
 
         // === TENTUKAN FILE SOURCE ===
         if ($request->hasFile('file_pengajuan')) {
