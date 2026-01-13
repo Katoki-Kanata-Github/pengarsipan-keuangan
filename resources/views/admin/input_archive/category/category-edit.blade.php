@@ -1,21 +1,24 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-2xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl leading-tight">
             {{ __('Edit Kategori Arsip') }}
         </h2>
     </x-slot>
 
     {{-- TOMBOL KEMBALI --}}
     <div class="#">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
             <a href="{{ route('cabinet.show', $cabinet->id) }}"
-                class="inline-flex items-center gap-2 bg-gray-200 text-gray-700 font-medium px-4 py-2 rounded-lg hover:bg-gray-300 transition shadow-sm">
-                ← Kembali
-            </a>
+                class="inline-flex items-center gap-2 bg-gray-100 text-gray-700 px-2 py-2 rounded-full border border-gray-200
+                    shadow-lg transition-all duration-200 ease-in-out hover:bg-gray-400 hover:shadow-md active:bg-gray-300 active:scale-95">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+            </a>             
         </div>
     </div>
 
-    <div class="py-10 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <div class="min-h-screen">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
 
             {{-- Breadcrumb --}}
@@ -257,33 +260,42 @@
 
                     </div>
 
-                    {{-- Action Buttons --}}
-                    <div class="flex items-center justify-between pt-8 mt-8 border-t-2 border-gray-200">
-
-                        {{-- Tombol Cancel --}}
-                        <a href="{{ route('cabinet.show', $cabinet->id) }}"
-                            class="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-xl transition-all duration-300">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
+                    {{-- Footer Actions --}}
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-8 border-t-2 border-gray-100">
+                            
+                        {{-- Info Required Fields --}}
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                            <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                             </svg>
-                            Batal
-                        </a>
+                            <span class="font-medium">Semua field wajib diisi</span>
+                        </div>
 
-                        {{-- Tombol Update --}}
-                        <button type="submit"
-                            class="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                        {{-- Submit Button --}}
+                        <div class="flex gap-3 w-full sm:w-auto">
+                            <button type="submit"
+                            class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-8 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
                             <svg class="w-5 h-5 group-hover:rotate-12 transition-transform duration-300"
                                 fill="currentColor" viewBox="0 0 20 20">
                                 <path
                                     d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                            </svg>
-                            Update Kategori
-                        </button>
+                            </svg>    
+                                Update
+                            </button>
+
+                            <a href="{{ route('cabinet.show', $cabinet->id) }}"
+                                class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-200 to-gray-300 hover:from-gray-300 hover:to-gray-400 text-gray-700 font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                Batal
+                            </a>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
+        </div>
 
             {{-- Warning Card --}}
             <div

@@ -5,14 +5,43 @@
         </h2>
     </x-slot>
 
-    <div class="py-10 bg-gray-50 min-h-screen">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow-md sm:rounded-xl p-6 border border-gray-200">
-                {{-- Tombol Tambah --}}
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-semibold text-gray-700">Kelola File Arsip</h3>
+    {{-- TOMBOL KEMBALI --}}
+    <div class="#">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+            <a href="{{ route('rack.show', $folder->id) }}"
+                class="inline-flex items-center gap-2 bg-gray-100 text-gray-700 px-2 py-2 rounded-full border border-gray-200
+                    shadow-lg transition-all duration-200 ease-in-out hover:bg-gray-400 hover:shadow-md active:bg-gray-300 active:scale-95">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+            </a>             
+        </div>
+    </div>
+
+    <div class="py-4 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            {{-- Header Card --}}
+            <div class="relative overflow-hidden bg-white rounded-3xl shadow-xl p-8 mb-8 border border-gray-100">
+                
+                <div class="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-b from-[#003A8F] to-[#002766] rounded-lg flex items-center justify-center shadow-lg">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900">
+                                Kelola File Arsip
+                            </h3>
+                            <p class="text-sm font-semibold text-gray-500">Total Arsip : {{ $archives->count() }}</p>
+                        </div>
+                    </div>
+
                     <a href="{{ route('file.create_with_folder', $folder->id) }}"
-                        class="inline-flex items-center gap-2 bg-green-500 text-white font-medium px-4 py-2 rounded-lg hover:bg-green-600 transition">
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700
+                                text-white font-medium rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
                         <img src="https://img.icons8.com/?size=24&id=48427&format=png&color=ffffff" alt="plus">
                         Tambah File Arsip
                     </a>
@@ -22,16 +51,16 @@
                 @php $no = 1; @endphp
 
                 @if ($archives->count() > 0)
-                    <div class="divide-y divide-gray-200 rounded-lg border border-gray-100">
+                    <div class="mt-10 space-y-4 rounded-lg">
                         @foreach ($archives as $archive)
-                            <div
-                                class="flex items-center justify-between p-4 hover:bg-gray-50 transition duration-150 ease-in-out group rounded-md">
+                        <div class="flex items-center justify-between p-4 bg-white border border-gray-400 rounded-lg
+                                    shadow-sm hover:shadow-md hover:bg-gray-300 transition-all duration-200 group">
 
                                 {{-- Bagian Klik Utama --}}
                                 <a href="{{ route('file.show', $archive->id) }}"
                                     class="flex items-center gap-4 flex-1 group-hover:text-indigo-600">
                                     <div
-                                        class="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 font-semibold">
+                                        class="w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-b from-[#003A8F] to-[#002766] text-white font-semibold">
                                         {{ $no++ }}
                                     </div>
                                     <div>
@@ -47,7 +76,7 @@
                                 {{-- Tombol Aksi --}}
                                 <div class="flex items-center gap-2 ml-4">
                                     <a href="{{ route('file.edit', $archive->id) }}"
-                                        class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-md p-2 transition"
+                                        class="flex items-center justify-center bg-amber-500 hover:bg-orange-600 rounded-md p-2 transition"
                                         title="Edit">
                                         <img src="https://img.icons8.com/?size=24&id=88584&format=png&color=ffffff"
                                             alt="edit">
@@ -69,22 +98,20 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="text-center py-10 text-gray-500">
-                        <img src="https://img.icons8.com/?size=96&id=102550&format=png&color=9ca3af"
-                            class="mx-auto mb-3 opacity-70" alt="no data">
-                        <p>Tidak ada rak arsip yang tersedia.</p>
+                    {{-- Empty State --}}
+                    <div class="mt-10 text-center bg-white rounded-2xl shadow-md border border-gray-200 py-24">
+                        <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mb-6 shadow-inner">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <p class="text-xl font-semibold text-gray-700 mb-3">Belum Ada File Arsip</p>
+                        <p class="text-gray-500 mb-8 max-w-md mx-auto">Tidak ada file arsip yang tersedia. Silakan tambahkan file pertama untuk mulai mengelola dokumen Anda.</p>
                     </div>
                 @endif
             </div>
 
-            {{-- Tombol Kembali --}}
-            <div class="mt-6">
-                <a href="{{ route('rack.show', $folder->id) }}"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 rounded-lg font-medium transition">
-                    {{-- <img src="https://img.icons8.com/?size=20&id=118774&format=png&color=4b5563" alt="back"> --}}
-                    Kembali
-                </a>
-            </div>
+            
         </div>
     </div>
 </x-app-layout>

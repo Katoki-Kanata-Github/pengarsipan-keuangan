@@ -1,11 +1,24 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-2xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl leading-tight">
             {{ __('Daftar Rak Arsip') }}
         </h2>
     </x-slot>
 
-    <div class="py-10 bg-gray-50 min-h-screen">
+    {{-- Tombol Kembali --}}
+    <div class="#">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+            <a href="{{ route('cabinet.show', $category->cabinet_id) }}"
+                class="inline-flex items-center gap-2 bg-gray-100 text-gray-700 px-2 py-2 rounded-full border border-gray-200
+                    shadow-lg transition-all duration-200 ease-in-out hover:bg-gray-400 hover:shadow-md active:bg-gray-300 active:scale-95">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+            </a>             
+        </div>
+    </div>
+
+    <div class="py-8 bg-gray-50 min-h-screen">
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             {{-- Section Arsip Fisik --}}
@@ -16,7 +29,8 @@
                     <div class="flex items-center gap-3">
                         {{-- Tombol Tambah Rak --}}
                         <a href="{{ route('rack.create', $category->id) }}"
-                            class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700
+                                   text-white font-medium rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
                             <img src="https://img.icons8.com/?size=24&id=48427&format=png&color=ffffff"
                                 class="w-5" />
                             Tambah Rak Arsip
@@ -31,13 +45,13 @@
                     <div class="divide-y divide-gray-200 rounded-lg border border-gray-100">
                         @foreach ($racks as $rak)
                             <div
-                                class="flex items-center justify-between p-4 hover:bg-gray-50 transition duration-150 ease-in-out group rounded-md">
+                                class="flex items-center justify-between p-4 bg-white border border-gray-400 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-300 transition group">
 
                                 {{-- Bagian Klik Utama --}}
                                 <a href="{{ route('rack.show', $rak->id) }}"
                                     class="flex items-center gap-4 flex-1 group-hover:text-indigo-600">
                                     <div
-                                        class="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-100 text-indigo-600 font-semibold">
+                                        class="w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-b from-[#003A8F] to-[#002766] text-white font-semibold">
                                         {{ $no++ }}
                                     </div>
                                     <div class="space-y-1">
@@ -69,7 +83,7 @@
                                 {{-- Tombol Aksi --}}
                                 <div class="flex items-center gap-2 ml-4">
                                     <a href="{{ route('rack.edit', $rak->id) }}"
-                                        class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-md p-2 transition"
+                                        class="flex items-center justify-center bg-amber-500 hover:bg-orange-600 rounded-md p-2 transition"
                                         title="Edit">
                                         <img src="https://img.icons8.com/?size=24&id=88584&format=png&color=ffffff"
                                             alt="edit">
@@ -91,10 +105,15 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="text-center py-10 text-gray-500">
-                        <img src="https://img.icons8.com/?size=96&id=102550&format=png&color=9ca3af"
-                            class="mx-auto mb-3 opacity-70" alt="no data">
-                        <p>Tidak ada rak arsip yang tersedia.</p>
+                    {{-- Empty State --}}
+                    <div class="mt-10 text-center bg-white rounded-2xl shadow-md border border-gray-200 py-10">
+                        <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mb-6 shadow-inner">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                        </div>
+                        <p class="text-xl font-semibold text-gray-700 mb-3">Belum Ada Rak Arsip</p>
+                        <p class="text-gray-500 mb-8 max-w-md mx-auto">Tidak ada rak arsip yang tersedia. Silakan tambahkan rak pertama untuk mulai menyimpan dokumen Anda.</p>
                     </div>
                 @endif
             </div>
@@ -107,7 +126,8 @@
                     <div class="flex items-center gap-3">
                         {{-- Tombol Tambah Arsip Digital (opsional) --}}
                         <a href="#"
-                            class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 rounded-xl shadow-md transition">
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700
+                                   text-white font-medium rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
                             <img src="https://img.icons8.com/?size=24&id=48427&format=png&color=ffffff"
                                 class="w-5" />
                             Tambah Arsip Digital
@@ -122,12 +142,12 @@
                     <div class="divide-y divide-gray-200 rounded-lg border border-gray-100">
                         @foreach ($digitalarchive as $archive)
                             <div
-                                class="flex items-center justify-between p-4 hover:bg-gray-50 transition duration-150 ease-in-out group rounded-md">
+                                class="flex items-center justify-between p-4 bg-white border border-gray-400 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-300 transition group">
 
                                 {{-- Bagian Klik Utama --}}
                                 <a href="#" class="flex items-center gap-4 flex-1 group-hover:text-indigo-600">
                                     <div
-                                        class="w-8 h-8 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-600 font-semibold">
+                                        class="w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-b from-[#003A8F] to-[#002766] text-white font-semibold">
                                         {{ $noDigital++ }}
                                     </div>
                                     <div class="space-y-2 flex-1">
@@ -172,7 +192,7 @@
                                     </a>
 
                                     <a href="#"
-                                        class="flex items-center justify-center bg-blue-500 hover:bg-blue-600 rounded-md p-2 transition"
+                                        class="flex items-center justify-center bg-amber-500 hover:bg-orange-600 rounded-md p-2 transition"
                                         title="Edit">
                                         <img src="https://img.icons8.com/?size=24&id=88584&format=png&color=ffffff"
                                             alt="edit">
@@ -194,22 +214,21 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="text-center py-10 text-gray-500">
-                        <img src="https://img.icons8.com/?size=96&id=82751&format=png&color=9ca3af"
-                            class="mx-auto mb-3 opacity-70" alt="no data">
-                        <p>Tidak ada arsip digital yang tersedia.</p>
+                {{-- Empty State --}}
+                <div class="mt-10 text-center bg-white rounded-2xl shadow-md border border-gray-200 py-10">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mb-6 shadow-inner">
+                        <svg class="mx-auto mb-3 w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 13h8" />
+                        </svg>
                     </div>
+                    <p class="text-xl font-semibold text-gray-700 mb-3">Belum Ada Arsip Digital</p>
+                    <p class="text-gray-500 mb-8 max-w-md mx-auto">Tidak ada arsip digital yang tersedia. Silakan tambahkan rak pertama untuk mulai menyimpan dokumen Anda.</p>
+                </div>
                 @endif
             </div>
 
-            {{-- Tombol Kembali --}}
-            <div class="mt-6">
-                <a href="{{ route('cabinet.show', $category->cabinet_id) }}"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 rounded-lg font-medium transition">
-                    <img src="https://img.icons8.com/?size=20&id=39786&format=png&color=374151" class="w-5" />
-                    Kembali
-                </a>
-            </div>
+            
         </div>
     </div>
 </x-app-layout>
