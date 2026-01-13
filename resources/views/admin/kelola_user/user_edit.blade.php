@@ -182,40 +182,32 @@
                         </div>
                     </div>
 
-                    @if ($user->role == 'Bendahara')
-                        {{-- ROLE --}}
-                        <div class="group">
-                            <label class="flex items-center gap-2 text-gray-700 font-semibold mb-3 mt-3">
-                                Sub Divisi
-                                <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <select name="sub_role"
-                                    class="w-full px-5 py-2 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-gray-50 focus:bg-white appearance-none cursor-pointer pl-12"
-                                    required>
-                                    <option value="" disabled>Pilih Sub Divisi</option>
-                                    <option value="UP KKP" {{ $user->sub_role == 'UP KKP' ? 'selected' : '' }}>UP KKP
-                                    </option>
-                                    <option value="UP RM" {{ $user->sub_role == 'UP RM' ? 'selected' : '' }}>UP RM
-                                    </option>
-                                    <option value="UP TUP" {{ $user->sub_role == 'UP TUP' ? 'selected' : '' }}>UP TUP
-                                    </option>
-                                    <option value="SVM" {{ $user->sub_role == 'SVM' ? 'selected' : '' }}>SVM
-                                    </option>
-                                    <option value="PNBP" {{ $user->sub_role == 'PNBP' ? 'selected' : '' }}>PNBP
-                                    </option>
-                                </select>
-                                <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
-                                    fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z"
-                                        clip-rule="evenodd" />
-                                    <path
-                                        d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
-                                </svg>
-                            </div>
+                    {{-- ROLE --}}
+                    <div class="group">
+                        <label class="flex items-center gap-2 text-gray-700 font-semibold mb-3 mt-3">
+                            Sub Divisi
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select name="sub_role"
+                                class="w-full px-5 py-2 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 bg-gray-50 focus:bg-white appearance-none cursor-pointer pl-12"
+                                required>
+                                <option value="" disabled>Pilih kode Akun</option>
+                                <option value="GC" {{ $user->sub_role == 'GC' ? 'selected' : '' }}>GC - (Program
+                                    Penyiaran Publik)</option>
+                                <option value="WA" {{ $user->sub_role == 'WA' ? 'selected' : '' }}>WA - (Program
+                                    Dukungan Manajemen)</option>
+                            </select>
+                            <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
+                                fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z"
+                                    clip-rule="evenodd" />
+                                <path
+                                    d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
+                            </svg>
                         </div>
-                    @endif
+                    </div>
 
                     {{-- Izinkan Akses Arsip (Radio Version) --}}
                     <div class="group mt-6">

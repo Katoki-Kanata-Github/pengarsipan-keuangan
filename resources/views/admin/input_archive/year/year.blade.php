@@ -10,6 +10,7 @@
 
             {{-- Header SubCategory --}}
             <div class="bg-white shadow-md rounded-xl p-6 border border-gray-200 mb-6 flex justify-between items-center">
+
                 <h3 class="text-lg font-semibold text-gray-700">Daftar Tahun
                 </h3>
 

@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\DigitalArchive;
+use App\Models\FundingSource;
+use App\Models\PaymentMethod;
 use App\Models\Pengajuan;
 use App\Models\User;
 use Carbon\Carbon;
@@ -22,8 +25,10 @@ class PengajuanController extends Controller
      */
     public function index()
     {
-        $users = User::where('role', 'Bendahara')->get();
-        return view('user.pengajuan.pengajuan', compact('users'));
+        // $users = User::where('role', 'Bendahara')->get();
+        $payment_method = PaymentMethod::all();
+        $funding_source = FundingSource::all();
+        return view('user.pengajuan.pengajuan', compact('payment_method', 'funding_source'));
     }
 
     public function update_check(Request $request, $id)
@@ -272,7 +277,7 @@ class PengajuanController extends Controller
 
     public function final_verification(Request $request, $id)
     {
-        $pengajuan = Pengajuan::with('user')->findOrFail($id);
+        $pengajuan = Pengajuan::with('user')->with('finance_officer')->with('revenue_officer')->findOrFail($id);
         if (Storage::disk('private')->exists($pengajuan->path_file_status_kelengkapan)) {
             $filePathMetadata = Storage::disk('private')->path($pengajuan->path_file_status_kelengkapan);
             $spreadsheet = IOFactory::load($filePathMetadata);
@@ -299,37 +304,198 @@ class PengajuanController extends Controller
             $sourcePath = $pengajuan->path_file_pengajuan;
         }
 
+        // === TAMBAH WATERMARK DENGAN NOMOR KUITANSI ===
+        if (Storage::disk('private')->exists($sourcePath)) {
+            $this->addWatermarkWithKuitansiToPdf($sourcePath, $request->kuitansi);
+        }
+
+
+        // add to digital archive
+        // check bendahara divisi apa?
+        $payment = PaymentMethod::findOrFail($request->payment_method);
+        $funding = FundingSource::findOrFail($request->funding_source);
+        $year = now()->year;
+
+        $idPayment = null;
+        $idFunding = null;
+
+        // ========== CARI CATEGORY PAYMENT ==========
+        $categoryPayment = Category::where('cabinet_id', $request->cabinet_id)
+            ->where('year', $year)
+            ->where('category_name', $payment->payment_method_name)
+            ->where(function ($q) use ($payment) {
+                if (!empty($payment->sub_category)) {
+                    $q->where('sub_category', $payment->sub_category);
+                } else {
+                    $q->whereNull('sub_category')
+                        ->orWhere('sub_category', '');
+                }
+            })
+            ->first();
+
+        $idPayment = $categoryPayment?->id;
+
+        // ========== CARI CATEGORY FUNDING ==========
+        $categoryFunding = Category::where('cabinet_id', $request->cabinet_id)
+            ->where('year', $year)
+            ->where('category_name', $funding->funding_source_name)
+            ->where(function ($q) use ($funding) {
+                if (!empty($funding->sub_category)) {
+                    $q->where('sub_category', $funding->sub_category);
+                } else {
+                    $q->whereNull('sub_category')
+                        ->orWhere('sub_category', '');
+                }
+            })
+            ->first();
+
+        $idFunding = $categoryFunding?->id;
+
+        // ========== VALIDASI ==========
+        if (!$idPayment && !$idFunding) {
+            return redirect()->back()->with(
+                'error',
+                'Gagal mengarsipkan. Kategori arsip tidak ditemukan untuk Payment atau Funding.'
+            );
+        }
+
+        // === COPY FILE KE FOLDER ARCHIVE ===
+        if (Storage::disk('private')->exists($sourcePath)) {
+            $newPath = 'archive/' . basename($sourcePath);
+            Storage::disk('private')->copy($sourcePath, $newPath);
+        } else {
+            return redirect()->back()->with('error', 'File pengajuan tidak ditemukan');
+        }
+
         // === UPDATE DB ===
         $pengajuan->update([
             'revenue_officer_id' => Auth::id(),
             'path_file_pengajuan' => $sourcePath,
+            'assigned_payment_method' => $request->payment_method,
+            'assigned_funding_source' => $request->funding_source,
             'status_diarsipkan'   => 1,
             'nominal' => $request->biaya,
         ]);
 
-        // add to digital archive
-        $tahun = Carbon::now()->year;
-        $divisi_pengaju = $pengajuan->user->role;
-
-        $digital_archive = DigitalArchive::where('divisi_name', $divisi_pengaju)->where('year', $tahun)->first();
-
-        if (isset($digital_archive)) {
-            $pengajuan->update([
-                'digital_archive_id' => $digital_archive->id,
-            ]);
-        } else {
-            $pengajuan_archive =  DigitalArchive::create([
-                'divisi_name' => $pengajuan->user->role,
-                'year' => $tahun,
-            ]);
-            $pengajuan->update([
-                'digital_archive_id' => $pengajuan_archive->id,
-            ]);
-        }
+        // create digital archive
+        DigitalArchive::create([
+            'category_payment_id' => $idPayment,
+            'category_funding_id' => $idFunding,
+            'archive_name' => $pengajuan->pengajuan_name,
+            'submiter_name' => $pengajuan->user->name,
+            'finance_officer_name' => $pengajuan->finance_officer->name,
+            'revenue_officer_name' => Auth::user()->name,
+            'file_path_archive' => $newPath,
+            'archive_code' => $request->kuitansi,
+            'nominal' => $request->biaya,
+            'archive_by' => Auth::user()->name,
+            'disposal_date' => Carbon::now()->addYear(5),
+            'no_spm' => $request->no_spm,
+        ]);
 
         return redirect()
             ->route('bendahara.dashboard')
             ->with('success', 'Berhasil verifikasi final pengajuan');
+    }
+
+    // Function BARU untuk watermark dengan nomor kuitansi
+    private function addWatermarkWithKuitansiToPdf(string $filePath, string $kuitansi)
+    {
+        if (!Storage::disk('private')->exists($filePath)) {
+            Log::error('File PDF tidak ditemukan: ' . $filePath);
+            throw new \Exception('File PDF tidak ditemukan');
+        }
+
+        $fullPath = Storage::disk('private')->path($filePath);
+
+        $mpdf = new Mpdf([
+            'tempDir' => storage_path('app/mpdf'),
+        ]);
+
+        // === LOAD FILE PDF ASLI ===
+        $pageCount = $mpdf->SetSourceFile($fullPath);
+
+        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+
+            $tplId = $mpdf->ImportPage($pageNo);
+            $size  = $mpdf->getTemplateSize($tplId);
+
+            $mpdf->AddPageByArray([
+                'orientation' => $size['orientation'],
+                'width'       => $size['width'],
+                'height'      => $size['height'],
+            ]);
+
+            $mpdf->UseTemplate($tplId);
+
+            // === GARIS MERAH SOLID DI KIRI ===
+            // $mpdf->SetAlpha(0.5);
+            // $mpdf->SetDrawColor(255, 0, 0);
+            // $mpdf->SetLineWidth(0.5);
+            // $mpdf->Line(5, 0, 5, $size['height']);
+            // $mpdf->SetAlpha(1);
+
+            // === NOMOR KUITANSI VERTIKAL BERULANG (90° ROTASI) DI KANAN GARIS MERAH ===
+            $xKuitansi = 7; // 5mm (garis) + 2mm
+            $yStart = 20;   // Mulai dari atas
+            $spacing = 40;  // Jarak antar teks kuitansi (dalam mm)
+
+            $mpdf->SetFont('Arial', 'B', 10);
+            $mpdf->SetTextColor(255, 0, 0); // Merah
+            $mpdf->SetAlpha(0.7);
+
+            // Hitung berapa kali perlu diulang berdasarkan tinggi halaman
+            $repeatCount = ceil(($size['height'] - $yStart) / $spacing);
+
+            for ($i = 0; $i < $repeatCount; $i++) {
+                $yPosition = $yStart + ($i * $spacing);
+
+                // Pastikan tidak melebihi tinggi halaman
+                if ($yPosition > $size['height']) {
+                    break;
+                }
+
+                // Rotate text 90 derajat
+                $mpdf->Rotate(90, $xKuitansi, $yPosition);
+                $mpdf->SetXY($xKuitansi, $yPosition);
+                $mpdf->Cell(0, 0, $kuitansi, 0, 0, 'L');
+                $mpdf->Rotate(0); // Reset rotation
+            }
+
+            $mpdf->SetAlpha(1);
+            $mpdf->SetTextColor(0, 0, 0); // Reset warna
+
+            // === WATERMARK GAMBAR (60% HALAMAN, CENTER, OPACITY 20%) ===
+            // $watermarkPath = storage_path('app/public/images/watermark.png');
+
+            // if (file_exists($watermarkPath)) {
+
+            //     [$imgW, $imgH] = getimagesize($watermarkPath);
+            //     $imgRatio = $imgW / $imgH;
+
+            //     $maxW = $size['width'] * 0.6;
+            //     $maxH = $size['height'] * 0.6;
+
+            //     if ($maxW / $maxH > $imgRatio) {
+            //         $wmHeight = $maxH;
+            //         $wmWidth  = $wmHeight * $imgRatio;
+            //     } else {
+            //         $wmWidth  = $maxW;
+            //         $wmHeight = $wmWidth / $imgRatio;
+            //     }
+
+            //     $x = ($size['width']  - $wmWidth)  / 2;
+            //     $y = ($size['height'] - $wmHeight) / 2;
+
+            //     $mpdf->SetAlpha(0.2);
+            //     $mpdf->Image($watermarkPath, $x, $y, $wmWidth, $wmHeight);
+            //     $mpdf->SetAlpha(1);
+            // }
+        }
+
+        $mpdf->Output($fullPath, 'F');
+
+        Log::info('Watermark dengan kuitansi PDF berhasil: ' . $filePath . ' | Kuitansi: ' . $kuitansi);
     }
 
 
@@ -388,7 +554,8 @@ class PengajuanController extends Controller
         $pengajuan = Pengajuan::create([
             'user_id' => $iduser,
             'pengajuan_name' => $request->nama_pengajuan,
-            'assigned_revenue_officer' => $request->assigned_revenue,
+            'assigned_payment_method' => $request->payment_method,
+            'assigned_funding_source' => $request->funding_source,
             'path_file_pengajuan' => $path,
             'status_kelengkapan' => $status_kelengkapan,
             'status_verifikasi' => $status_verifikasi,
@@ -416,7 +583,10 @@ class PengajuanController extends Controller
      */
     public function show(string $id) // oke
     {
-        $pengajuan = Pengajuan::with('finance_officer')->findOrFail($id);
+        $pengajuan = Pengajuan::with('finance_officer')
+            ->with('payment_method')
+            ->with('funding_source')
+            ->findOrFail($id);
         if (Storage::disk('private')->exists($pengajuan->path_file_status_kelengkapan)) {
             $filePathMetadata = Storage::disk('private')->path($pengajuan->path_file_status_kelengkapan);
             $spreadsheet = IOFactory::load($filePathMetadata);
@@ -451,19 +621,26 @@ class PengajuanController extends Controller
             $tidakada[] = $datatidakada;
             $startCell++;
         }
+        $startCell = 7;
+        $tidakperlu = [];
+        while ($startCell <= $endCell) {
+            $datatidakperlu = $worksheet->getCell("F{$startCell}")->getValue();
+            $tidakperlu[] = $datatidakperlu;
+            $startCell++;
+        }
 
         // ========== tanda tangan
         $startCell = 7;
         $lengkap = [];
         while ($startCell <= $endCell) {
-            $datalengkap = $worksheet->getCell("F{$startCell}")->getValue();
+            $datalengkap = $worksheet->getCell("G{$startCell}")->getValue();
             $lengkap[] = $datalengkap;
             $startCell++;
         }
         $startCell = 7;
         $belum = [];
         while ($startCell <= $endCell) {
-            $databelum = $worksheet->getCell("G{$startCell}")->getValue();
+            $databelum = $worksheet->getCell("H{$startCell}")->getValue();
             $belum[] = $databelum;
             $startCell++;
         }
@@ -471,14 +648,14 @@ class PengajuanController extends Controller
         $startCell = 7;
         $keterangan = [];
         while ($startCell <= $endCell) {
-            $dataketerangan = $worksheet->getCell("H{$startCell}")->getValue();
+            $dataketerangan = $worksheet->getCell("I{$startCell}")->getValue();
             $keterangan[] = $dataketerangan;
             $startCell++;
         }
 
         $catatan = $worksheet->getCell('B40')->getValue();
 
-        return view('user.pengajuan.pengajuan-show', compact('pengajuan', 'namaKegiatan', 'no', 'syaratDoc', 'ada', 'tidakada', 'lengkap', 'belum', 'keterangan', 'catatan'));
+        return view('user.pengajuan.pengajuan-show', compact('pengajuan', 'namaKegiatan', 'no', 'syaratDoc', 'ada', 'tidakada', 'tidakperlu', 'lengkap', 'belum', 'keterangan', 'catatan'));
     }
 
     /**

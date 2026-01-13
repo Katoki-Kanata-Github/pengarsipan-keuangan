@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\ArchiveFileController;
 use App\Http\Controllers\Admin\CabinetController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\FolderController;
+use App\Http\Controllers\Admin\FundingSourceController;
+use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Bendahara\BendaharaController;
 use App\Http\Controllers\Bendahara\DigitalArchiveController;
@@ -13,7 +15,6 @@ use App\Http\Controllers\Keuangan\KeuanganController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\PengajuanController;
 use App\Http\Controllers\User\UserController;
-use App\Models\DocumentFolder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -88,7 +89,6 @@ Route::put('/update/folder/{id}', [FolderController::class, 'update_folder'])->n
 Route::delete('/delete/folder/{id}', [FolderController::class, 'destroy_folder'])->name('folder.delete');
 
 Route::get('/list/archive/{id}', [FolderController::class, 'folder_show'])->name('archive.list');
-
 Route::get('/input/archive', [AdminController::class, 'input_archive'])->name('admin.archive');
 Route::get('/file/create/{id}', [ArchiveFileController::class, 'create_with_folder'])->name('file.create_with_folder');
 Route::get('/file/download/archive/{id}', [ArchiveFileController::class, 'download_file'])->name('file.download.archive');
@@ -96,6 +96,7 @@ Route::get('/file/{id}', [ArchiveFileController::class, 'name_file'])->name('arc
 Route::post('/file/upload/{id}', [ArchiveFileController::class, 'update_new_file'])->name('archive.upload.store');
 
 Route::get('/kelola/user', [AdminController::class, 'kelola_user'])->name('admin.kelola');
+Route::get('/setting/environment', [AdminController::class, 'environment'])->name('admin.envi');
 
 // =================================================================== Route tampilan User
 // Route::get('/pengajuan', [UserController::class, 'pengajuan'])->name('user.pengajuan');
@@ -121,6 +122,9 @@ Route::resource('/document/file', ArchiveFileController::class);
 Route::resource('/document/search', SearchController::class);
 
 Route::resource('/account', AccountManageController::class);
+
+Route::resource('/payment', PaymentMethodController::class);
+Route::resource('/funding', FundingSourceController::class);
 
 Route::resource('/pengajuan', PengajuanController::class);
 Route::resource('/archive/digital', DigitalArchiveController::class);

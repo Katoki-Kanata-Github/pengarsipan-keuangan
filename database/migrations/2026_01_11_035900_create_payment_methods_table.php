@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('digital_archives', function (Blueprint $table) {
+        Schema::create('payment_methods', function (Blueprint $table) {
             $table->id();
-            $table->string('divisi_name');
-            $table->year('year');
+            $table->string('payment_method_name');
+            $table->string('sub_category')->nullable();
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('digital_archives');
+        Schema::dropIfExists('payment_methods');
     }
 };

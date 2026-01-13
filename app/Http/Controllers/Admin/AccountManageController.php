@@ -43,6 +43,7 @@ class AccountManageController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+            'is_privileged' => 0,
         ]);
 
         return redirect()->route('account.index')->with('success', 'Berhasil Menambahkan Account');

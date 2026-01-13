@@ -5,19 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Category extends Model
+class PaymentMethod extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'cabinet_id',
-        'category_name',
+        'payment_method_name',
         'sub_category',
-        'year',
-        'payment_method_id',
-        'funding_source_id',
-        'url_icon',
-        'path_icon',
         'description',
     ];
 }

@@ -33,7 +33,6 @@
                 <option value="Umum">Umum</option>
                 <option value="Tata usaha">Tata usaha</option>
                 <option value="Pengembangan usaha">Pengembangan usaha</option>
-                <option value="Keuangan" class="font-semibold text-blue-950 bg-blue-200">Keuangan</option>
             </select>
         </div>
 

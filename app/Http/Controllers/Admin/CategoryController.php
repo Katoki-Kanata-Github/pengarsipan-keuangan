@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\ArchiveFile;
 use App\Models\Cabinet;
 use App\Models\Category;
+use App\Models\DigitalArchive;
 use App\Models\DocumentFolder;
+use App\Models\FundingSource;
+use App\Models\PaymentMethod;
 use Dom\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -54,13 +57,18 @@ class CategoryController extends Controller
     public function create_category_form_cabinet($id) // id cabinet
     {
         $cabinet = Cabinet::findOrFail($id);
-        return view('admin.input_archive.category.category-create', compact('cabinet'));
+        $payment = PaymentMethod::all();
+        $funding = FundingSource::all();
+
+        return view('admin.input_archive.category.category-create', compact('cabinet', 'payment', 'funding'));
     }
 
     public function create_sub_category($id) // id category
     {
         $category = Category::findOrFail($id);
-        return view('admin.input_archive.sub_category.sub_category_create', compact('category'));
+        $payment = PaymentMethod::all();
+        $funding = FundingSource::all();
+        return view('admin.input_archive.sub_category.sub_category_create', compact('category', 'payment', 'funding'));
     }
 
     public function create_year($id) // id category bisa dari sub kategori atau dari kategori langsung
@@ -76,6 +84,8 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
+            'payment_method' => 'nullable',
+            'funding_source' => 'nullable',
             'deskripsi' => 'nullable|string',
             'url' => 'nullable|string',
         ]);
@@ -84,6 +94,8 @@ class CategoryController extends Controller
             'cabinet_id' => $request->cabinet_id,
             'category_name' => $request->name,
             'description' => $request->deskripsi,
+            'payment_method_id' => $request->payment_method,
+            'funding_source_id' => $request->funding_source,
             'url_icon' => $request->url,
         ]);
 
@@ -95,12 +107,16 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id); // category saat ini
         $request->validate([
             'name' => 'required|string',
+            'payment_method' => 'nullable',
+            'funding_source' => 'nullable',
         ]);
 
         if (isset($category->sub_category)) { // jika categori saat ini sudah memiliki sub kategori maka buat yang baru
             Category::create([
                 'cabinet_id' => $category->cabinet_id,
                 'category_name' => $category->category_name,
+                'payment_method_id' => $category->payment_method,
+                'funding_source_id' => $category->funding_source,
                 'sub_category' => $request->name,
             ]);
         } else {
@@ -124,6 +140,7 @@ class CategoryController extends Controller
                 'cabinet_id' => $category->cabinet_id,
                 'category_name' => $category->category_name,
                 'sub_category' => $category->sub_category,
+                'category_code' => $category->category_code,
                 'year' => $request->year,
             ]);
         } else {
@@ -187,7 +204,12 @@ class CategoryController extends Controller
             $temp[] = $rak->rack_name; // tambahkan rak dalam temp
             $racks->push($rak);
         }
-        return view('admin.input_archive.rack.archive-rack', compact('racks', 'category'));
+        if ($category->payment_method_id !== null) {
+            $digitalarchive = DigitalArchive::where('category_payment_id', $category->id)->get();
+        } else if ($category->funding_source_id !== null) {
+            $digitalarchive = DigitalArchive::where('category_funding_id', $category->id)->get();
+        }
+        return view('admin.input_archive.rack.archive-rack', compact('racks', 'category', 'digitalarchive'));
     }
 
     /**
@@ -210,6 +232,7 @@ class CategoryController extends Controller
         $exists = Category::where('cabinet_id', $year->cabinet_id)
             ->where('category_name', $year->category_name)
             ->where('sub_category', $year->sub_category)
+            ->where('category_code', $year->category_code)
             ->where('year', $request->year)
             ->where('id', '!=', $id)
             ->exists();
@@ -229,39 +252,50 @@ class CategoryController extends Controller
     public function update_subcategory(Request $request, string $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255'
+            'name' => 'required|string|max:255',
+            'payment_method' => 'nullable',
+            'funding_source' => 'nullable',
         ]);
 
         $subcategory = Category::findOrFail($id);
         $cabinetId = $subcategory->cabinet_id;
+
         $oldSubCategory = $subcategory->sub_category;
         $newSubCategory = $request->name;
 
-        // Cek apakah sub_category baru sudah ada di category yang sama
-        $exists = Category::where('cabinet_id', $subcategory->cabinet_id)
-            ->where('category_name', $subcategory->category_name)
-            ->where('sub_category', $newSubCategory)
-            ->exists();
+        // Cek duplikat
+        // $exists = Category::where('cabinet_id', $subcategory->cabinet_id)
+        //     ->where('category_name', $subcategory->category_name)
+        //     ->where('sub_category', $newSubCategory)
+        //     ->exists();
 
-        if ($exists) {
-            return redirect()->route('cabinet.show', ['cabinet' => $cabinetId])
-                ->with('error', 'Sub Category dengan nama ini sudah ada di Category yang sama');
-        }
+        // if ($exists) {
+        //     return redirect()
+        //         ->route('cabinet.show', ['cabinet' => $cabinetId])
+        //         ->with('error', 'Sub Category dengan nama ini sudah ada di Category yang sama');
+        // }
 
-        // Update semua records dengan sub_category yang sama di category & cabinet yang sama
+        // UPDATE
         Category::where('cabinet_id', $subcategory->cabinet_id)
             ->where('category_name', $subcategory->category_name)
             ->where('sub_category', $oldSubCategory)
-            ->update(['sub_category' => $newSubCategory]);
+            ->update([
+                'sub_category'  => $newSubCategory,
+                'payment_method_id' => $request->payment_method,
+                'funding_source_id' => $request->funding_source,
+            ]);
 
-        return redirect()->route('cabinet.show', ['cabinet' => $cabinetId])
+        return redirect()
+            ->route('cabinet.show', ['cabinet' => $cabinetId])
             ->with('success', 'Berhasil edit Sub Category');
     }
 
     public function update_category(Request $request, string $id)
     {
         $request->validate([
-            'category_name' => 'required|string|max:255'
+            'category_name' => 'required|string|max:255',
+            'payment_method' => 'nullable',
+            'funding_source' => 'nullable',
         ]);
 
         $category = Category::findOrFail($id);
@@ -269,21 +303,11 @@ class CategoryController extends Controller
         $oldCategoryName = $category->category_name;
         $newCategoryName = $request->category_name;
 
-        // Cek apakah category_name baru sudah ada di cabinet yang sama
-        $exists = Category::where('cabinet_id', $category->cabinet_id)
-            ->where('category_name', $newCategoryName)
-            ->exists();
-
-        if ($exists) {
-            return redirect()->route('cabinet.show', ['cabinet' => $cabinetId])
-                ->with('error', 'Category dengan nama ini sudah ada di Cabinet yang sama');
-        }
-
         // Update semua records dengan category_name yang sama di cabinet yang sama
         // Termasuk yang punya sub_category dan year berbeda
         Category::where('cabinet_id', $category->cabinet_id)
             ->where('category_name', $oldCategoryName)
-            ->update(['category_name' => $newCategoryName]);
+            ->update(['category_name' => $newCategoryName, 'payment_method_id' => $request->payment_method, 'funding_source_id' => $request->funding_source]);
 
         // Update juga di field sub_category yang mereferensi category_name ini
         Category::where('cabinet_id', $category->cabinet_id)
@@ -303,14 +327,24 @@ class CategoryController extends Controller
     public function edit_subcategory($id)
     {
         $subcategory = Category::findOrFail($id);
-        return view('admin.input_archive.sub_category.sub_category_edit', compact('subcategory'));
+        $payment = PaymentMethod::all();
+        $funding = FundingSource::all();
+        return view('admin.input_archive.sub_category.sub_category_edit', compact('subcategory', 'payment', 'funding'));
     }
 
     public function edit_category($id)
     {
         $category = Category::findOrFail($id);
         $cabinet = Cabinet::findOrFail($category->cabinet_id);
-        return view('admin.input_archive.category.category-edit', compact('category', 'cabinet'));
+        $payment = PaymentMethod::all();
+        $funding = FundingSource::all();
+
+        return view('admin.input_archive.category.category-edit', compact(
+            'category',
+            'cabinet',
+            'payment',
+            'funding',
+        ));
     }
 
     /**

@@ -7,6 +7,7 @@ use App\Models\Pengajuan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class KeuanganController extends Controller
 {
@@ -48,7 +49,18 @@ class KeuanganController extends Controller
         $startCell = 7;
         $ada = [];
         while ($startCell <= $endCell) {
-            $dataada = $worksheet->getCell("D{$startCell}")->getValue();
+            if (
+                $worksheet->getCell("D{$startCell}")->getValue() !== null ||
+                $worksheet->getCell("E{$startCell}")->getValue() !== null ||
+                $worksheet->getCell("F{$startCell}")->getValue() !== null
+            ) {
+                $dataada = $worksheet->getCell("D{$startCell}")->getValue();
+            } else {
+                $worksheet->setCellValue("D{$startCell}", 'Y');
+                $writer = new Xlsx($spreadsheet);
+                $writer->save($filePathMetadata);
+                $dataada = $worksheet->getCell("D{$startCell}")->getValue();
+            }
             $ada[] = $dataada;
             $startCell++;
         }
@@ -71,7 +83,18 @@ class KeuanganController extends Controller
         $startCell = 7;
         $lengkap = [];
         while ($startCell <= $endCell) {
-            $datalengkap = $worksheet->getCell("G{$startCell}")->getValue();
+            if (
+                $worksheet->getCell("G{$startCell}")->getValue() !== null ||
+                $worksheet->getCell("H{$startCell}")->getValue() !== null ||
+                $worksheet->getCell("I{$startCell}")->getValue() !== null
+            ) {
+                $datalengkap = $worksheet->getCell("G{$startCell}")->getValue();
+            } else {
+                $worksheet->setCellValue("G{$startCell}", 'Y');
+                $writer = new Xlsx($spreadsheet);
+                $writer->save($filePathMetadata);
+                $datalengkap = $worksheet->getCell("G{$startCell}")->getValue();
+            }
             $lengkap[] = $datalengkap;
             $startCell++;
         }
@@ -92,6 +115,9 @@ class KeuanganController extends Controller
         }
 
         $catatan = $worksheet->getCell('B40')->getValue();
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($filePathMetadata);
 
         return view('keuangan.check-pengajuan', compact('pengajuan', 'namaKegiatan', 'kuitansi', 'syaratDoc', 'ada', 'tidakada', 'tidakperlu', 'lengkap', 'belum', 'keterangan', 'catatan'));
     }
